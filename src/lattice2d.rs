@@ -34,15 +34,15 @@ pub enum InitType {
 ///
 /// The 2D lattice type
 pub struct Lattice2d {
-    dims: [usize; 2],
-    n_sites: i32,       // the number of spin 1/2 sites == dims[0] * dims[1]
-    nodes: Array2<i32>, // this language generalizes better to other graphs
+    pub dims: [usize; 2],
+    pub n_sites: i32,       // the number of spin 1/2 sites == dims[0] * dims[1]
+    pub nodes: Array2<i32>, // this language generalizes better to other graphs
     update_rule: UpdateRule,
-    spin_type: SpinType,
-    init_type: InitType,
-    j: f64,    // interaction constant, default 1.0
-    h: f64,    // external uniform magnetic field, default 0.0
-    beta: f64, // beta = 1/(k_b * T), defaults to 0.43
+    pub spin_type: SpinType,
+    pub init_type: InitType,
+    pub j: f64,    // interaction constant, default 1.0
+    pub h: f64,    // external uniform magnetic field, default 0.0
+    pub beta: f64, // beta = 1/(k_b * T), defaults to 0.43
 }
 
 /// Implement basic methods for the 2d lattice type
