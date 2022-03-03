@@ -4,7 +4,7 @@
 
 
 
-![Ising Demo Movie](https://user-images.githubusercontent.com/21654151/156488463-29c137c7-5692-45cc-ac20-742bbf1f85dc.mov)
+[Ising Demo Movie](https://user-images.githubusercontent.com/21654151/156488463-29c137c7-5692-45cc-ac20-742bbf1f85dc.mov)
 
 
 
