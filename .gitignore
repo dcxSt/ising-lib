@@ -1,4 +1,5 @@
 /target
+/example/displayrun_lattice2d/target
 *.mov
 *.gif
 .DS_Store
