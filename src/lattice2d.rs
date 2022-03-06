@@ -1,8 +1,6 @@
 //! The 2D Spin Lattice Type
 
-// use ndarray::{prelude::*, NdIndex};
 use ndarray::prelude::*;
-// use rand::prelude::*;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 

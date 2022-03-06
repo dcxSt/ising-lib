@@ -5,7 +5,7 @@ trait Measurement {
     fn spin_expected_value(&self) -> f64; // get the expected value of the spin, i.e. the magnetization per spin 
 }
 
-// Implement the measurement trait for the lattice2d type
+// Implement the measurement trait for the Lattice2d type
 impl Measurement for Lattice2d {
     fn spin_expected_value(&self) -> f64 {
         let mut sum = 0;

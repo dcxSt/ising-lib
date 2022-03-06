@@ -1,6 +1,6 @@
 [package]
-name = "ising-lib"
-version = "0.1.0"
+name = "ising_lib"
+version = "1.0.0"
 edition = "2021"
 description = "Ising model simulation api, on lattices and graphs."
 keywords = ["ising", "physics", "simulation", "graph", "lattice"]
