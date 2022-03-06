@@ -91,6 +91,7 @@ impl Lattice2d {
     }
 
     /// Gets the difference in energy from flipping a spin
+    #[allow(non_snake_case)] // just for this function
     fn get_dE(&self, idx0: usize, idx1: usize) -> f64 {
         let neighbour_spin_sum: i32 = self.nodes[[idx0, (idx1 + 1) % self.dims[1]]]
             + self.nodes[[
@@ -115,7 +116,7 @@ impl Lattice2d {
         2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64)
     }
 
-    /// Update the lattice by one timestep
+    /// Update the lattice by one timestep, one potential flip
     pub fn update(&mut self) {
         match self.update_rule {
             UpdateRule::Metropolis => {
@@ -124,6 +125,7 @@ impl Lattice2d {
                 let idx0: usize = rng.gen::<usize>() % self.dims[0];
                 let idx1: usize = rng.gen::<usize>() % self.dims[1];
                 // determine weather to flip or not to flip
+                #[allow(non_snake_case)]
                 let dE: f64 = self.get_dE(idx0, idx1);
                 if dE > 0.0 {
                     let p: f64 = rng.gen::<f64>(); // random f64 between 0 and 1
@@ -143,35 +145,36 @@ impl Lattice2d {
 
     /// Display lattice in terminal
     pub fn disp_terminal(&self) {
-        println!("----------------");
+        let mut string = "----------------\n".to_owned();
         for idx0 in 0..self.dims[0] {
-            print!("|");
+            string = string + "|";
             for idx1 in 0..self.dims[1] {
                 match self.nodes[[idx0, idx1]] {
                     -1 => {
-                        print!(" ");
+                        string = string + " ";
                     }
                     1 => {
-                        print!("*");
+                        string = string + "#";
                     }
                     _ => {
                         panic!("Ising lattice is an array of -1s and 1s");
                     }
                 }
             }
-            print!("|\n");
+            string = string + "|\n";
         }
-        println!("\n----------------");
+        string = string + "---------------------";
+        println!("{}", string);
     }
 }
 
-pub struct Graph {
-    n_sites: i32,
-    nodes: Array1<i32>,
-    edges: Array2<i32>, // less memory efficient, more readable
-    update_rule: UpdateRule,
-    spin_type: SpinType,
-}
+// pub struct Graph {
+//     n_sites: i32,
+//     nodes: Array1<i32>,
+//     edges: Array2<i32>, // less memory efficient, more readable
+//     update_rule: UpdateRule,
+//     spin_type: SpinType,
+// }
 
 #[cfg(test)]
 mod tests {
@@ -220,7 +223,7 @@ mod tests {
     }
 
     #[test]
-    fn test_update() {
+    fn test_update_disp() {
         let mut lattice = Lattice2d::new_basic([25, 75]);
         lattice.disp_terminal();
         for i in 0..3000 {
