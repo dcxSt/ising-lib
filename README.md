@@ -12,3 +12,7 @@ https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-
 
 [2] [Ising Model of User Behavior Decision in Network Rumor Propagation](https://www.hindawi.com/journals/ddns/2018/5207475/). Discusses a use of ising models for rumour propagation. Uses 2d ising lattice for simulations. Interaction forces have three terms, the 'micropart' or 'self identity attribute', the 'middle part' or 'user-user interaction' (i.e. interaction constant `J`), the 'macroscopic part' or 'social enviornment's influence' (i.e. ext mag field `H`). Concepts include Von Neuman entropy, Game theory. 
 
+[3] [The Ising Model: Brief Introduction and It's Application](https://www.intechopen.com/chapters/71210) is a short survey of the history of ising models and some of it's basic applications. 
+
+
+
