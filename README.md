@@ -23,4 +23,7 @@ https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-
 [3] [The Ising Model: Brief Introduction and It's Application](https://www.intechopen.com/chapters/71210) is a short survey of the history of ising models and some of it's basic applications. 
 
 
+---
+
+Note: Ising lib is going to ship version 1.0.0 this Sunday. The maintainer of the `ising_lib` crate has kindly agreed to transfer ownership of his crate to my project. 
 
