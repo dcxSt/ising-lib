@@ -1,7 +1,15 @@
 # Rust Ising Library
 
+Ising Lib is a tool to aid researchers perform ising model simulations on lattices and other graphs. 
+
+The ising model is popular because it is very simple to describe mathematically, and has a broad range of applications. Originally it was concieved to model spontaneous magnitization of ferromagnets due to cooling, but became very popular within the physics community in the mid 1900s for modelling many types of phase changes. ([Click here to learn about universality classes](https://www.wikiwand.com/en/Phase_transition#/Critical_exponents_and_universality_classes))
+
+Thanks to increased computational capabilities, we are able to run larger and more Ising model simulations than ever before! Recently ising models have started gaining traction within the social sciences in modelling herding behaviour and population dynamics. 
+
+
 ### Demo 
 
+Visit [this website](https://ising-2d-lattice.netlify.app/) for an interactive demo. [Hint: try clicking on the `+T`, `-T`, and `random` buttons. When the system cools to below a critical temperature it 'quenches' or spontaneously magnetizes.]
 
 https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-81c6-7f76f75c0f62.mov
 
