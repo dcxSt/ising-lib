@@ -1,10 +1,10 @@
 # Rust Ising Library
 
-Ising Lib is a tool to aid researchers perform ising model simulations on lattices and other graphs. 
+Ising Lib is a tool to aid researchers perform ising model simulations on lattices and other graphs. It aims to provide researchers and curious people with a broad range of tools optimized for parallel processing and gpus. 
 
 The ising model is popular because it is very simple to describe mathematically, and has a broad range of applications. Originally it was concieved to model spontaneous magnitization of ferromagnets due to cooling, but became very popular within the physics community in the mid 1900s for modelling many types of phase changes. ([Click here to learn about universality classes](https://www.wikiwand.com/en/Phase_transition#/Critical_exponents_and_universality_classes))
 
-Thanks to increased computational capabilities, we are able to run larger and more Ising model simulations than ever before! Recently ising models have started gaining traction within the social sciences in modelling herding behaviour and population dynamics. 
+Thanks to increasing computational capabilities, today we are able to run larger and more Ising model simulations than ever before! Recently Ising models have started gaining traction within the social sciences in modelling herding behaviour and population dynamics. 
 
 
 ### Demo 
@@ -20,7 +20,7 @@ https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-
 
 [2] [Ising Model of User Behavior Decision in Network Rumor Propagation](https://www.hindawi.com/journals/ddns/2018/5207475/). Discusses a use of ising models for rumour propagation. Uses 2d ising lattice for simulations. Interaction forces have three terms, the 'micropart' or 'self identity attribute', the 'middle part' or 'user-user interaction' (i.e. interaction constant `J`), the 'macroscopic part' or 'social enviornment's influence' (i.e. ext mag field `H`). Concepts include Von Neuman entropy, Game theory. 
 
-[3] [The Ising Model: Brief Introduction and It's Application](https://www.intechopen.com/chapters/71210) is a short survey of the history of ising models and some of it's basic applications. 
+[3] [The Ising Model: Brief Introduction and It's Application](https://www.intechopen.com/chapters/71210) is a short intro to Ising models, including some basic applications. 
 
 
 ---
