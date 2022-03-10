@@ -8,9 +8,11 @@ categories = ["science", "simulation"]
 authors = ["dcxSt <dcxstephen@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/dcxSt/ising-lib"
 # repository = "https://github.com/micouy/ising_lib" # add a repository when there is one
 
-
+[badges]
+travis-ci = { repository = "dcxSt/ising-lib" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
