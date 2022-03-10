@@ -179,11 +179,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn playground() {
-        assert!(true);
-    }
-
-    #[test]
     fn test_lattice_new_basic() {
         let lattice = Lattice2d::new_basic([5, 10]);
         println!("{}", lattice.nodes); // cargo test -- --nocapture
@@ -213,19 +208,21 @@ mod tests {
     }
 
     #[test]
+    #[allow(non_snake_case)]
     fn test_get_dE() {
-        let lattice = Lattice2d::new_basic([5, 10]);
+        let lattice = Lattice2d::new_basic([5, 6]);
         let i0: usize = 0;
-        let i1: usize = 9;
-        let dE: f64 = lattice.get_dE(i0, i1);
+        let i1: usize = 3;
+        let _dE: f64 = lattice.get_dE(i0, i1);
     }
 
     #[test]
     fn test_update_disp() {
-        let mut lattice = Lattice2d::new_basic([25, 75]);
+        let mut lattice = Lattice2d::new_basic([5, 5]);
         lattice.disp_terminal();
-        for i in 0..3000 {
-            for j in 0..100 {
+        // this tests the update function 300 times, it should only take an instant
+        for _ in 0..3 { // set 3 to 3000 for slideshow 
+            for _ in 0..1 { // set 1 to 100 for slideshow
                 lattice.update();
             }
             lattice.disp_terminal();

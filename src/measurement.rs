@@ -37,9 +37,9 @@ mod test {
         // UNCOMMENT TWO LINES BELOW WITH --nocapture FLAG
         // use std::time::Duration;
         // std::thread::sleep(Duration::from_secs(3));
-        for _ in 0..1000 {
+        for _ in 0..1 { // set 1 to 1000 for slideshow
             println!("< Spin > = {}", lattice.spin_expected_value());
-            for _ in 0..100 {
+            for _ in 0..1 { // set 1 to 100 for slideshow
                 lattice.update();
             }
         }
