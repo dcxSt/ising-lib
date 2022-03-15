@@ -3,6 +3,7 @@ use crate::lattice2d::*;
 /// The measurement trait measures quantities across different graphs
 trait Measurement {
     fn spin_expected_value(&self) -> f64; // get the expected value of the spin, i.e. the magnetization per spin 
+    fn measure_energy(&self) -> f64; // energy of the lattice
 }
 
 // Implement the measurement trait for the Lattice2d type
@@ -15,6 +16,15 @@ impl Measurement for Lattice2d {
             }
         }
         sum as f64 / ((self.dims[0] * self.dims[1]) as f64)
+    }
+    /// Return the energy of the lattice
+    ///
+    /// ```text
+    /// E = -J * ∑(s_i * s_j) - H * ∑ s_i 
+    /// ```
+    fn measure_energy(&self) -> f64 {
+        let spin_mean = self.spin_expected_value();
+        // STOPPED CODING HERE
     }
 }
 
