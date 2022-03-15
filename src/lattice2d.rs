@@ -69,9 +69,7 @@ impl Lattice2d {
         beta: f64,
     ) -> Self {
         // TODO: implement initialization for different spin types
-        let nodes: Array2<i32>;
-        let mut rng = rand::thread_rng();
-        nodes = Array2::from_shape_fn(dims, |_| *[-1, 1].choose(&mut rng).unwrap());
+        let nodes:Array2::<i32> = Lattice2d::init_spins(&init_type, &dims);
 
         let (width, height) = nodes.dim();
 
@@ -88,7 +86,27 @@ impl Lattice2d {
         }
     }
 
-    /// Gets the difference in energy from flipping a spin
+    /// initiates the sites to some config (often random) as specified by init_type
+    fn init_spins(init_type:&InitType, dims:&[usize; 2]) -> Array2::<i32> {
+        let nodes: Array2<i32>; 
+        match init_type{
+            InitType::Random => {
+                let mut rng = rand::thread_rng();
+                nodes = Array2::from_shape_fn(*dims, |_| *[-1, 1].choose(&mut rng).unwrap());
+            }
+            _ => {
+                panic!("Invalid init type");
+            }
+        }
+        return nodes;
+    }
+
+    /// resets the sites to some config (often random) as specified by init_type
+    fn reset_spins(&mut self) {
+        self.nodes = Lattice2d::init_spins(&self.init_type, &self.dims);
+    }
+
+    /// Gets the difference in energy from flipping the spin at [idx0,idx1]
     #[allow(non_snake_case)] // just for this function
     fn get_dE(&self, idx0: usize, idx1: usize) -> f64 {
         let neighbour_spin_sum: i32 = self.nodes[[idx0, (idx1 + 1) % self.dims[1]]]
@@ -111,7 +129,7 @@ impl Lattice2d {
         // two times dot prod of spin w/ it's neighbours
         // this is the energy required to flip
         // Calculation with H, not yet implemented
-        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64)
+        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64) + self.h * (self.nodes[[idx0, idx1]] as f64)
     }
 
     /// Update the lattice by one timestep, one potential flip
@@ -166,14 +184,6 @@ impl Lattice2d {
     }
 }
 
-// pub struct Graph {
-//     n_sites: i32,
-//     nodes: Array1<i32>,
-//     edges: Array2<i32>, // less memory efficient, more readable
-//     update_rule: UpdateRule,
-//     spin_type: SpinType,
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,6 +224,22 @@ mod tests {
         let i0: usize = 0;
         let i1: usize = 3;
         let _dE: f64 = lattice.get_dE(i0, i1);
+    }
+
+    #[test]
+    fn test_init_spins() {
+        let nodes:Array2::<i32> = Lattice2d::init_spins(&InitType::Random , &[4 as usize, 5 as usize]);
+        let (width, height) = nodes.dim();
+        assert!(width == 4 as usize);
+        assert!(height == 5 as usize);
+        assert!(nodes[[3,4]] == 1 || nodes[[3,4]] == -1);
+        assert!(nodes[[0,0]] == 1 || nodes[[0,0]] == -1);
+    }
+
+    #[test]
+    fn test_reset_spins() {
+        let mut lattice = Lattice2d::new_basic([5, 10]);
+        lattice.reset_spins(); // all we test for here is runtime errors 
     }
 
     #[test]
