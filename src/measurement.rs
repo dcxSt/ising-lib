@@ -1,21 +1,43 @@
+//! The Measurement type calculates quantities on systems that do not require 
+//! averaging over multiple samples
+
 use crate::lattice2d::*;
 
 /// The measurement trait measures quantities across different graphs
 trait Measurement {
-    fn spin_expected_value(&self) -> f64; // get the expected value of the spin, i.e. the magnetization per spin 
+    fn get_spin_sum(&self) -> i32; // get the sum of the spin values
+    fn get_spin_expected_value(&self) -> f64; // get the expected value of the spin, i.e. the magnetization per spin 
     fn measure_energy(&self) -> f64; // energy of the lattice
+    // IDEAS
+    // spacial correlation function
+        // correlation with immediate and 2nd degree neighbors... more?
+        // is there a fast way to implement this?
 }
 
-// Implement the measurement trait for the Lattice2d type
+/// Implement the measurement trait for the Lattice2d type
 impl Measurement for Lattice2d {
-    fn spin_expected_value(&self) -> f64 {
-        let mut sum = 0;
-        for i in 0..self.dims[0] {
-            for j in 0..self.dims[1] {
-                sum += self.nodes[[i,j]];
-            }
-        }
-        sum as f64 / ((self.dims[0] * self.dims[1]) as f64)
+    /// method returns sum of spins in lattice
+    /// ∑ s_i
+    fn get_spin_sum(&self) -> i32 {
+        self.nodes.iter()
+            .fold(0.0 , |acc, &x| acc + x)
+    }
+    /// method returns expected value of lattice
+    /// ∑ s_i / n
+    fn get_spin_expected_value(&self) -> f64 {
+        self.get_spin_sum() as f64 / (self.n_sites as f64)
+    }
+    /// method returns dot of spins with their neighbors
+    /// ∑ (s_i * s_j) 
+    fn get_dot_spin_neighbours(&self) -> i32 {
+        // circular boudary convolution with neighbor filter
+        // 0 1 0
+        // 1 0 1
+        // 0 1 0 
+        // dot product of result with all_sites
+        // (There may be room for optimization here... possibly a 2x speed 
+        // up... at the expense of readable code.)
+        0 // dummy
     }
     /// Return the energy of the lattice
     ///
@@ -23,8 +45,15 @@ impl Measurement for Lattice2d {
     /// E = -J * ∑(s_i * s_j) - H * ∑ s_i 
     /// ```
     fn measure_energy(&self) -> f64 {
-        let spin_mean = self.spin_expected_value();
-        // STOPPED CODING HERE
+        let spin_sum = self.get_spin_sum() as f64; // calculate H term
+        let spin_neighbours_dot = self.get_dot_spin_neighbours() as f64; // J term
+        // Q: should we take precautions in case of overflow errors here 
+        // when converting from i32 to f64 ? 
+        return - self.j * spin_neighbours_dot - self.h * spin_sum 
+    }
+    /// Returns the energy per spin
+    fn measure_energy_per_spin(&self) -> f64 {
+        self.measure_energy() / self.n_sites
     }
 }
 
