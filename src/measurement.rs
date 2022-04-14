@@ -1,7 +1,8 @@
 //! The Measurement type calculates quantities on systems that do not require 
 //! averaging over multiple samples
 
-use ndarray::Array2;
+// use ndarray::Array2;
+use ndarray::prelude::*;
 use crate::lattice2d::*;
 
 /// The measurement trait measures quantities across different graphs
@@ -35,28 +36,45 @@ impl Measurement for Lattice2d {
     /// Assumes periodic (/circular) boundary conditions
     /// This is kindof a bad hacky solution, we'll see how well it performs...
     fn _convolve_2d_circ_neighbours(mat:Array2<i32>) -> Array2<i32> {
-        let mut result = Array2::<i32>::zeros(mat.shape());
-        for i in 0..mat.shape()[0] {
-            for j in 0..mat.raw_dim()[1] {
-                match {
-                    i == 0 && j == 0 => {
-                        // result[[i,j]] = mat[]
+        let shape = mat.raw_dim();
+        let mut result = Array2::<i32>::zeros(shape);
+        let xmax = shape[0]-1;
+        let ymax = shape[1]-1;
+        // Fill the result matrix (result of convolution)
+        for i in 0..shape[0] {
+            for j in 0..shape[1] {
+                match (i,j) {
+                    (0,0) => {
+                        result[[i,j]] = mat[[0,1]] + mat[[0,ymax]] + mat[[1,0]] + mat[[xmax,0]];
                     }
-                    i == 0 && j == mat.shape()[1] - 1 => {
-                        // dummy
+                    (0,ymax) => {
+                        result[[i,j]] = mat[[0,0]] + mat[[0,j-1]] + mat[[1,j]] + mat[[xmax,j]];
                     }
-                    i == mat.shape()[0] - 1 && j == 0 => {
-                        // dummy
+                    (xmax,0) => {
+                        result[[i,j]] = mat[[0,j]] + mat[[i-1,j]] + mat[[i,1]] + mat[[i,ymax]];
                     }
-                    i == mat.shape()[0] - 1 && j == mat.shape()[1] - 1 => {
-                        // dummy 
+                    (xmax,ymax) => {
+                        result[[i,j]] = mat[[i,j-1]] + mat[[i,0]] + mat[[i-1,j]] + mat[[0,j]];
                     }
-                    _ => {
-                        // dummy
+                    (0,_) => {
+                        result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[1,j]] + mat[[xmax,j]];
+                    }
+                    (xmax,_) => {
+                        result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[0,j]] + mat[[i-1,j]];
+                    }
+                    (_,0) => {
+                        result[[i,j]] = mat[[i,j+1]] + mat[[i,ymax]] + mat[[i+1,j]] + mat[[i-1,j]];
+                    }
+                    (_,ymax) => {
+                        result[[i,j]] = mat[[i,0]] + mat[[i,j-1]] + mat[[i+1,j]] + mat[[i-1,j]];
+                    }
+                    (_,_) => {
+                        result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[i+1,j]] + mat[[i-1,j]];
                     }
                 }
             }
         }
+        result
     }
     /// method returns dot of spins with their neighbors
     /// ∑ (s_i * s_j)   summing over all i,j pairs of neighbors
@@ -100,8 +118,8 @@ mod test {
             UpdateRule::Metropolis,
             SpinType::SpinHalf,
             InitType::Random,
-            1.0,  // interaction constant, default 1.0
-            0.0,  // external uniform magnetic field, default 0.0
+            1.0, // interaction constant, default 1.0
+            0.0, // external uniform magnetic field, default 0.0
             0.5, // beta = 1/(k_b * T), defaults to 0.43
         );
         // UNCOMMENT TWO LINES BELOW WITH --nocapture FLAG
@@ -111,6 +129,52 @@ mod test {
             println!("< Spin > = {}", lattice.get_spin_expected_value());
             for _ in 0..1 { // set 1 to 100 for slideshow
                 lattice.update();
+            }
+        }
+    }
+
+    #[test]
+    fn test__convolve_2d_circ_neighbours() {
+        let vec1 = vec![
+            vec![0,0,0],
+            vec![0,1,0],
+            vec![0,0,0],
+        ];
+        let vec1_conv = vec![ // we expect vec1 to convolve into this
+            vec![0,1,0],
+            vec![1,0,1],
+            vec![0,1,0],
+        ];
+        let vec2 = vec![
+            vec![0,0,1],
+            vec![0,0,0],
+            vec![0,0,0],
+        ];
+        let vec2_conv = vec![
+            vec![1,1,0],
+            vec![0,0,1],
+            vec![0,0,1],
+        ];
+        let mut arr1 = Array2::<i32>::default((3,3));
+        for (i, mut row) in arr1.axis_iter_mut(Axis(0)).enumerate() {
+            for (j, col) in row.iter_mut().enumerate() {
+                *col = vec1[i][j];
+            }
+        }
+        let mut arr2 = Array2::<i32>::default((3,3));
+        for (i, mut row) in arr2.axis_iter_mut(Axis(0)).enumerate() {
+            for (j, col) in row.iter_mut().enumerate() {
+                *col = vec2[i][j];
+            }
+        }
+
+        let result1 = Lattice2d::_convolve_2d_circ_neighbours(arr1);
+        let result2 = Lattice2d::_convolve_2d_circ_neighbours(arr2);
+
+        for i in 0..3 {
+            for j in 0..3 {
+                assert_eq!(result1[[i,j]] , vec1_conv[i][j]);
+                assert_eq!(result2[[i,j]] , vec2_conv[i][j]);
             }
         }
     }
