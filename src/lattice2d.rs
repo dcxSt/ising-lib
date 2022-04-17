@@ -93,9 +93,8 @@ impl Lattice2d {
             InitType::Random => {
                 let mut rng = rand::thread_rng();
                 nodes = Array2::from_shape_fn(*dims, |_| *[-1, 1].choose(&mut rng).unwrap());
-            }
-            _ => {
-                panic!("Invalid init type");
+            } InitType::AllUp => {
+                nodes = Array2::<i32>::ones(*dims);
             }
         }
         return nodes;
@@ -229,10 +228,16 @@ mod tests {
     fn test_init_spins() {
         let nodes:Array2::<i32> = Lattice2d::init_spins(&InitType::Random , &[4 as usize, 5 as usize]);
         let (width, height) = nodes.dim();
-        assert!(width == 4 as usize);
-        assert!(height == 5 as usize);
+        assert_eq!(width , 4usize);
+        assert_eq!(height , 5usize);
         assert!(nodes[[3,4]] == 1 || nodes[[3,4]] == -1);
         assert!(nodes[[0,0]] == 1 || nodes[[0,0]] == -1);
+
+        let nodes:Array2::<i32> = Lattice2d::init_spins(&InitType::AllUp , &[2 as usize, 3 as usize]);
+        let (width , height) = nodes.dim();
+        assert_eq!(width , 2usize);
+        assert_eq!(height , 3usize);
+        assert_eq!(nodes[[1,1]] , 1i32);
     }
 
     #[test]
