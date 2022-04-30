@@ -1,5 +1,7 @@
 /target
+/example/correlation_with_nn/target/
 /example/displayrun_lattice2d/target
 *.mov
+*.lock
 *.gif
 .DS_Store
