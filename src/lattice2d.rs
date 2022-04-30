@@ -45,7 +45,7 @@ pub struct Lattice2d {
 
 /// Implement basic methods for the 2d lattice type
 impl Lattice2d {
-    /// Create a new lattice of given dims with randomly generated spins.
+    /// Create a new lattice of given dims with randomly generated spins
     pub fn new_basic(dims: [usize; 2]) -> Self {
         Self::new(
             dims,

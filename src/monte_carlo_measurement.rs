@@ -4,10 +4,10 @@ use ndarray::prelude::*;
 
 /// Parameters for monte carlo sampling
 struct MonteCarloParams {
-    n_per_sample: usize, // number of dry runs
-    lattice_dims: [usize; 2],
-    flips_to_skip: usize, // skip flips to allow for system to cool from random
-    flips_per_measurement: usize,
+    n_runs: usize, // number of dry runs
+    flips_to_skip: usize, // skip flips for system to cool 
+    samples_per_run: usize, // number of samples to make in each run
+    flips_to_skip_intra_run: usize, // number of flips to skip between each sample from the same run
 }
 
 /// The measurement trait measures quantities across different graphs
@@ -16,22 +16,28 @@ trait MonteCarlo {
     /// - Energy fluctuations
     /// - Avg Magnetic Susceptibility
     // fn sample_metrics(&self) -> Array? Vector?, simple better probably immutable basic array [] is best; 
-    /// Monte Carlo estimation for average Energy Fluctuations
-    /// Returns tuple with estimate and uncertainty 1 sigma 
-    fn sample_energy_fluctuations(&self) -> (f64 , f64);
-    /// Monte Carlo estimation for average Magnetic Susceptibility
-    /// Returns the estimate and uncertainty 1 sigma
-    fn sample_magnetic_fluctuations(&self) -> (f64 , f64); 
-    /// Monte Carlo estimation for spacial correlations after system is settled
-    /// Returns the estimate and uncertainty 1 sigma
-    fn sample_spacial_correlations(&self) -> (f64 , f64);
+    // TODO: implement the following
+    // (doc) Monte Carlo estimation for average Energy Fluctuations
+    // (doc) Returns tuple with estimate and uncertainty 1 sigma 
+    // fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> (f64 , f64);
+    // TODO: implement the following
+    // (doc) Monte Carlo estimation for average Magnetic Susceptibility
+    // (doc) Returns the estimate and uncertainty 1 sigma
+    // fn sample_magnetic_fluctuations(&self) -> (f64 , f64); 
+    // TODO: implement the following 
+    // (doc) Monte Carlo estimation for spacial correlations after system is settled
+    // (doc) Returns the estimate and uncertainty 1 sigma
+    // fn sample_spacial_correlations(&self) -> (f64 , f64);
+    fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2]; 
     // idea: temporal corrleations, need to see if this matters and how people usually implement this
-    fn sample_temporal_correlations(&self) -> (f64 , f64);
-    /// Monte Carlo estimation of all of the above
-    /// re-implements each of the above metrics, and returns them in a vector
+    // TODO: implement below function
+    // fn sample_temporal_correlations(&self) -> (f64 , f64);
+    // (doc) Monte Carlo estimation of all of the above
+    // (doc) re-implements each of the above metrics, and returns them in a vector
     // perhaps a dictionary would be better? what does rust offer instead of 
     // dictinoaries?
-    fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
+    // TODO: implement below function
+    // fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
 }
 
 // DISCUSSION
@@ -78,53 +84,74 @@ trait MonteCarlo {
 
 /// Implements the measurement trait for the Lattice2d type
 impl MonteCarlo for Lattice2d {
-    fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> [f64;3] {
-        // initiate energy vector
-        // for 0..n_samples
-            // randomly init lattice
-            // skip nskip (~1000 * n_sites) timme steps
-            // measure and store energy of system 
-        // take the mean and variance of this vector
-        // (this is the avg energy and avg energy fluctuations)
-        //
-        // Return the avg energy, the fluctuations, and the uncertainty
-        //
-        // Q: what is the uncertainty on the energy fluctuation?
-        // This is some basic stats from experimental methods... 
-        // goes like 1 / sqrt n_samples
-    }
-    /// Monte Carlo estimation for average Magnetic Susceptibility
-    /// Returns the estimate and uncertainty 1 sigma
-    fn sample_magnetic_fluctuations(&self) -> [f64;3] {
-        // initiate magnetism vector
-        // for 0..n_samples
-            // randomly init lattice
-            // skip some time steps to cool system
-            // measure and store magetic field
-        // take the mean and variance of this vector
-        //
-        // Return avg magnetization, fluctuations, uncertainty
-    }
+    // fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> [f64;3] {
+    //     // initiate energy vector
+    //     // for 0..n_samples
+    //         // randomly init lattice
+    //         // skip nskip (~1000 * n_sites) timme steps
+    //         // measure and store energy of system 
+    //     // take the mean and variance of this vector
+    //     // (this is the avg energy and avg energy fluctuations)
+    //     //
+    //     // Return the avg energy, the fluctuations, and the uncertainty
+    //     //
+    //     // Q: what is the uncertainty on the energy fluctuation?
+    //     // This is some basic stats from experimental methods... 
+    //     // goes like 1 / sqrt n_samples
+    // }
+    // TODO: implement the following
+    // (doc) Monte Carlo estimation for average Magnetic Susceptibility
+    // (doc) Returns the estimate and uncertainty 1 sigma
+    // fn sample_magnetic_fluctuations(&self) -> [f64;3] {
+    //     // initiate magnetism vector
+    //     // for 0..n_samples
+    //         // randomly init lattice
+    //         // skip some time steps to cool system
+    //         // measure and store magetic field
+    //     // take the mean and variance of this vector
+    //     //
+    //     // Return avg magnetization, fluctuations, uncertainty
+    // }
     /// Monte Carlo estimate of nearest neighbor correlations
     /// Returns the estimate and uncertainty 1 sigma
-    fn sample_neighbor_correlations(&self , params:MonteCarloParams) -> [f64;2] {
+    fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2] {
         // initiate nn correlation vector (empty Vec)
-        // for 0..n_samples
-            // randomly init lattice
-            // skip some time steps to cool system
-            // measure the nearest neighbor correlation (same as interaction term)
+        nn_corr = Vec with capacity // nearest neighbor correlations
+
+        for _ in 0..params::n_runs {
+            // PSEUDO
+            let mut nn_corr_run = Vec with capacity params::samples_per_run
+            lattice::reset_spins();
+            // Time evolve the system to cool or heat it it's init 
+            // config (either Random or AllUp)
+            for _ in 0..params::flips_to_skip { lattice::update(); }
+            for _ in 0..params::samples_per_run {
+                // Time evolve the system a bit
+                for _ in 0..params::flips_to_skip_intra_run { lattice::update(); }
+                // PSEUDO
+                nn_corr_run append lattice::get_dot_spin_neighbours() as f64 / lattice::n_sites as f64 / 4.0; 
+                // should I implement getter for n_sites attribute? 
+                // dividing by 4.0 scales it between -1 and +1
+            }
+            nn_corr append mean nn_corr_run 
+        }
+        return [mean nn_corr, uncertainty in mean (=std / nn_corr squared)]
+        [0.0,0.0] // Dummy return statement
     }
-    /// Monte Carlo estimation for spacial correlations after system is settled
-    /// Returns the estimate and uncertainty 1 sigma
-    fn sample_spacial_correlations(&self , params:MonteCarloParams) -> [f64;3] {
-        // initiate nearest neighbo
-    }
-    /// Monte Carlo estimation for temporal correlations after system is settled
-    /// Returns the estaimate and uncertainty 1 sigma
-    fn sample_temporal_correlations(&self) -> (f64 , f64);
-    /// Monte Carlo estimagion of all metrics
-    /// Returns a Vec (or dict?) of all the metrics
-    fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
+    // TODO: implement the following
+    // (doc) Monte Carlo estimation for spacial correlations after system is settled
+    // (doc) Returns the estimate and uncertainty 1 sigma
+    // fn sample_spacial_correlations(&self , params:MonteCarloParams) -> [f64;3] {
+    //     // initiate nearest neighbo
+    // }
+    // TODO: implement the following
+    // (doc) Monte Carlo estimation for temporal correlations after system is settled
+    // (doc) Returns the estaimate and uncertainty 1 sigma
+    // fn sample_temporal_correlations(&self) -> (f64 , f64);
+    // TODO: implement the following
+    // (doc) Monte Carlo estimagion of all metrics
+    // (doc) Returns a Vec (or dict?) of all the metrics
+    // fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
 }
 
 #[cfg(test)]

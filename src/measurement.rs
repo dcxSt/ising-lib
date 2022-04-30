@@ -43,6 +43,7 @@ impl Measurement for Lattice2d {
         for i in 0..=_xmax {
             for j in 0..=_ymax {
                 // for some very strange reason, match gives wierd results
+                // Answered on Stack Overflow https://stackoverflow.com/questions/71911005/strange-matching-behaviour-in-for-loop 
                 if i==0 && j==0 {
                     result[[i,j]] = mat[[0,1]] + mat[[0,_ymax]] + mat[[1,0]] + mat[[_xmax,0]]
                 } else if i==0 && j==_ymax {
