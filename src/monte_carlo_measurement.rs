@@ -115,28 +115,27 @@ impl MonteCarlo for Lattice2d {
     /// Monte Carlo estimate of nearest neighbor correlations
     /// Returns the estimate and uncertainty 1 sigma
     fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2] {
+        assert!(params.n_runs >= 2); // There must be at least two runs, or we cannot make estimate of var in mean
         // initiate nn correlation vector (empty Vec)
-        nn_corr = Vec with capacity // nearest neighbor correlations
+        let mut nn_corr: [f64; params.n_runs] = [0.0; params.n_runs]; // nearest neighbor correlations
 
-        for _ in 0..params::n_runs {
-            // PSEUDO
-            let mut nn_corr_run = Vec with capacity params::samples_per_run
-            lattice::reset_spins();
-            // Time evolve the system to cool or heat it it's init 
-            // config (either Random or AllUp)
-            for _ in 0..params::flips_to_skip { lattice::update(); }
-            for _ in 0..params::samples_per_run {
+        for i in 0..params.n_runs {
+            let mut nn_corr_run: [f64; params.samples_per_run] = [0.0; params.samples_per_run];
+            self::reset_spins();
+            // Time evolve the system to cool (or heat) it 
+            for _ in 0..params.flips_to_skip { self::update(); }
+            for j in 0..params.samples_per_run {
                 // Time evolve the system a bit
-                for _ in 0..params::flips_to_skip_intra_run { lattice::update(); }
-                // PSEUDO
-                nn_corr_run append lattice::get_dot_spin_neighbours() as f64 / lattice::n_sites as f64 / 4.0; 
-                // should I implement getter for n_sites attribute? 
+                for _ in 0..params.flips_to_skip_intra_run { self::update(); }
+                nn_corr_run[j] = self::get_dot_spin_neighbours() as f64 / self::n_sites as f64 / 4.0; 
                 // dividing by 4.0 scales it between -1 and +1
             }
-            nn_corr append mean nn_corr_run 
+            nn_corr[i] = nn_corr_run.iter().sum() / nn_corr_run.len() as f64;
         }
-        return [mean nn_corr, uncertainty in mean (=std / nn_corr squared)]
-        [0.0,0.0] // Dummy return statement
+        let mean_corr:f64 = nn_corr.iter().sum() / nn_corr.len() as f64;
+        let var:f64 = nn_corr.iter().map(|x| x.powi(2) - mean_corr.powi(2)).sum() / params.n_runs as f64;
+        let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
+        [mean_corr, var_in_mean]
     }
     // TODO: implement the following
     // (doc) Monte Carlo estimation for spacial correlations after system is settled
@@ -157,6 +156,11 @@ impl MonteCarlo for Lattice2d {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_sample_neighbor_correlations() {
+        // TODO: implement this test
+    }
 }
 
 

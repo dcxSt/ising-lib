@@ -127,10 +127,11 @@ impl Lattice2d {
 
         // two times dot prod of spin w/ it's neighbours
         // this is the energy required to flip
-        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64) + self.h * (self.nodes[[idx0, idx1]] as f64)
+        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64) 
+            + self.h * (self.nodes[[idx0, idx1]] as f64)
     }
 
-    /// Update the lattice by one timestep, one potential flip
+    /// Update the lattice by one timestep, (=one potential flip)
     pub fn update(&mut self) {
         match self.update_rule {
             UpdateRule::Metropolis => {
