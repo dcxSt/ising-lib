@@ -1,9 +1,8 @@
 use crate::lattice2d::*;
-use crate::measurement::*;
-use ndarray::prelude::*;
+use crate::measurement::Measurement; // *;
 
 /// Parameters for monte carlo sampling
-struct MonteCarloParams {
+pub struct MonteCarloParams {
     n_runs: usize, // number of dry runs
     flips_to_skip: usize, // skip flips for system to cool 
     samples_per_run: usize, // number of samples to make in each run
@@ -11,7 +10,7 @@ struct MonteCarloParams {
 }
 
 /// The measurement trait measures quantities across different graphs
-trait MonteCarlo {
+pub trait MonteCarlo {
     /// Calculates and returns basic metrics by monto carlo sampling
     /// - Energy fluctuations
     /// - Avg Magnetic Susceptibility
@@ -117,23 +116,23 @@ impl MonteCarlo for Lattice2d {
     fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2] {
         assert!(params.n_runs >= 2); // There must be at least two runs, or we cannot make estimate of var in mean
         // initiate nn correlation vector (empty Vec)
-        let mut nn_corr: [f64; params.n_runs] = [0.0; params.n_runs]; // nearest neighbor correlations
+        let mut nn_corr = vec![0.0; params.n_runs]; // nearest neighbor correlations
 
         for i in 0..params.n_runs {
-            let mut nn_corr_run: [f64; params.samples_per_run] = [0.0; params.samples_per_run];
-            self::reset_spins();
+            let mut nn_corr_run = vec![0.0; params.samples_per_run];
+            self.reset_spins();
             // Time evolve the system to cool (or heat) it 
-            for _ in 0..params.flips_to_skip { self::update(); }
+            for _ in 0..params.flips_to_skip { self.update(); }
             for j in 0..params.samples_per_run {
                 // Time evolve the system a bit
-                for _ in 0..params.flips_to_skip_intra_run { self::update(); }
-                nn_corr_run[j] = self::get_dot_spin_neighbours() as f64 / self::n_sites as f64 / 4.0; 
+                for _ in 0..params.flips_to_skip_intra_run { self.update(); }
+                nn_corr_run[j] = self.get_dot_spin_neighbours() as f64 / self.n_sites as f64 / 4.0; 
                 // dividing by 4.0 scales it between -1 and +1
             }
-            nn_corr[i] = nn_corr_run.iter().sum() / nn_corr_run.len() as f64;
+            nn_corr[i] = nn_corr_run.iter().sum::<f64>() / nn_corr_run.len() as f64;
         }
-        let mean_corr:f64 = nn_corr.iter().sum() / nn_corr.len() as f64;
-        let var:f64 = nn_corr.iter().map(|x| x.powi(2) - mean_corr.powi(2)).sum() / params.n_runs as f64;
+        let mean_corr:f64 = nn_corr.iter().sum::<f64>() / nn_corr.len() as f64;
+        let var:f64 = nn_corr.iter().map(|x| f64::powi(*x,2) - mean_corr.powi(2)).sum::<f64>() / params.n_runs as f64;
         let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
         [mean_corr, var_in_mean]
     }

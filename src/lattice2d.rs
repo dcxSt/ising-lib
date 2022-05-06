@@ -101,7 +101,7 @@ impl Lattice2d {
     }
 
     /// resets the sites to some config (often random) as specified by init_type
-    fn reset_spins(&mut self) {
+    pub fn reset_spins(&mut self) {
         self.nodes = Lattice2d::init_spins(&self.init_type, &self.dims);
     }
 

@@ -6,7 +6,7 @@ use ndarray::prelude::*;
 use crate::lattice2d::*;
 
 /// The measurement trait measures quantities across different graphs
-trait Measurement {
+pub trait Measurement {
     fn get_spin_sum(&self) -> i32;              // get the sum of the spin values
     fn get_spin_expected_value(&self) -> f64;   // get the expected value of the spin, i.e. the magnetization per spin 
     fn _convolve_2d_circ_neighbours(mat:&Array2<i32>) -> Array2<i32>; // convolves mat with filt with circular boundary conditions
