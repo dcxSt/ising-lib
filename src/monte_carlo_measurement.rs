@@ -3,10 +3,10 @@ use crate::measurement::Measurement; // *;
 
 /// Parameters for monte carlo sampling
 pub struct MonteCarloParams {
-    n_runs: usize, // number of dry runs
-    flips_to_skip: usize, // skip flips for system to cool 
-    samples_per_run: usize, // number of samples to make in each run
-    flips_to_skip_intra_run: usize, // number of flips to skip between each sample from the same run
+    pub n_runs: usize, // number of dry runs
+    pub flips_to_skip: usize, // skip flips for system to cool 
+    pub samples_per_run: usize, // number of samples to make in each run
+    pub flips_to_skip_intra_run: usize, // number of flips to skip between each sample from the same run
 }
 
 /// The measurement trait measures quantities across different graphs
@@ -28,6 +28,7 @@ pub trait MonteCarlo {
     // (doc) Returns the estimate and uncertainty 1 sigma
     // fn sample_spacial_correlations(&self) -> (f64 , f64);
     fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2]; 
+    fn sample_average_magnetization(&mut self , params:MonteCarloParams) -> [f64;2];
     // idea: temporal corrleations, need to see if this matters and how people usually implement this
     // TODO: implement below function
     // fn sample_temporal_correlations(&self) -> (f64 , f64);
@@ -135,6 +136,28 @@ impl MonteCarlo for Lattice2d {
         let var:f64 = nn_corr.iter().map(|x| f64::powi(*x,2) - mean_corr.powi(2)).sum::<f64>() / params.n_runs as f64;
         let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
         [mean_corr, var_in_mean]
+    }
+    /// Monte Carlo estimate of avg magnetization
+    /// Returns the estimate and uncertainty 1 var
+    fn sample_average_magnetization(&mut self , params:MonteCarloParams) -> [f64;2] {
+        assert!(params.n_runs >= 2); // There must be at least two runs, or we cannot make estimate of var in mean
+        let mut abs_spin = vec![0.0; params.n_runs]; 
+        for i in 0..params.n_runs {
+            let mut abs_spin_run = vec![0.0; params.samples_per_run];
+            self.reset_spins();
+            // Time evolve the system to cool (or heat) it
+            for _ in 0..params.flips_to_skip { self.update(); }
+            for j in 0..params.samples_per_run {
+                // Time evolve the system a bit
+                for _ in 0..params.flips_to_skip_intra_run { self.update(); }
+                abs_spin_run[j] = self.get_spin_expected_value().abs();
+            }
+            abs_spin[i] = abs_spin_run.iter().sum::<f64>() / params.samples_per_run as f64;
+        }
+        let mean_abs_spin:f64 = abs_spin.iter().sum::<f64>() / params.n_runs as f64;
+        let var:f64 = abs_spin.iter().map(|x| f64::powi(*x,2) - mean_abs_spin.powi(2)).sum::<f64>() / params.n_runs as f64;
+        let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
+        [mean_abs_spin, var_in_mean]
     }
     // TODO: implement the following
     // (doc) Monte Carlo estimation for spacial correlations after system is settled

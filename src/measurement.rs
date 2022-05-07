@@ -1,7 +1,6 @@
 //! The Measurement type calculates quantities on systems that do not require 
 //! averaging over multiple samples
 
-// use ndarray::Array2;
 use ndarray::prelude::*;
 use crate::lattice2d::*;
 
