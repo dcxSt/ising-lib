@@ -28,6 +28,7 @@ pub trait MonteCarlo {
     // (doc) Returns the estimate and uncertainty 1 sigma
     // fn sample_spacial_correlations(&self) -> (f64 , f64);
     fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2]; 
+    fn sample_neighbor_corr_data(&mut self, params:MonteCarloParams) -> [f64;10]; // TODO: make this nice or remove after tests
     fn sample_average_magnetization(&mut self , params:MonteCarloParams) -> [f64;2];
     // idea: temporal corrleations, need to see if this matters and how people usually implement this
     // TODO: implement below function
@@ -136,6 +137,17 @@ impl MonteCarlo for Lattice2d {
         let var:f64 = nn_corr.iter().map(|x| f64::powi(*x,2) - mean_corr.powi(2)).sum::<f64>() / params.n_runs as f64;
         let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
         [mean_corr, var_in_mean]
+    }
+    /// Monte Carlo samples of nn correlations
+    /// Returns actual sampled data
+    fn sample_neighbor_corr_data(&mut self, params:MonteCarloParams) -> [f64;10] {
+        let mut nn_data:[f64; 10] = [0.0; 10];
+        for i in 0..10 {
+            self.reset_spins();
+            for _ in 0..params.flips_to_skip { self.update(); }
+            nn_data[i] = self.get_dot_spin_neighbours() as f64 / self.n_sites as f64 / 4.0;
+        }
+        nn_data
     }
     /// Monte Carlo estimate of avg magnetization
     /// Returns the estimate and uncertainty 1 var
