@@ -11,6 +11,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     // let mut mu_vars = vec![];
     let mut samples = vec![];
     println!("Starting simulation");
+
+    let params = MonteCarloParams {
+        n_runs: 25,
+        flips_to_skip: 500_000,
+        samples_per_run: 1,
+        flips_to_skip_intra_run: 0,
+    };
+
     for temp in tqdm_rs::Tqdm::new((15..=100).step_by(5)) {
         print!("T={}, ",temp);
         // beta is 1/T (times boltzman constant, but we're ignoring that)
@@ -28,14 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             beta, // 1/Tkb
         );
 
-        let params = MonteCarloParams {
-            n_runs: 25,
-            flips_to_skip: 500_000,
-            samples_per_run: 1,
-            flips_to_skip_intra_run: 0,
-        };
-
-        let sample_points = lattice.sample_neighbor_corr_data(params);
+        let sample_points:Vec<f64> = lattice.sample_neighbor_correlations(&params);
         samples.push(sample_points)
         // let mu_var = lattice.sample_neighbor_correlations(params);
         // mu_vars.push([mu_var[0],mu_var[1],temp as f64]);
@@ -43,28 +44,22 @@ fn main() -> Result<(), Box<dyn Error>> {
         // mu_vars.push([mu_var[0],mu_var[1],temp as f64])
     }
     println!("Done");
-    // let mut file = std::fs::File::create("data.txt").expect("Create failed");
-    let mut wtr = csv::Writer::from_writer(io::stdout());
-    for idx in 0..samples.len() {
+    // TODO: write to csv instead of printing
+    // let mut wtr = csv::Writer::from_writer(io::stdout());
+    for (idx,temp) in (15..=100).step_by(5).enumerate() {
     //     file.write_all(format!("{},{},{}\n",mu_vars[idx][0],mu_vars[idx][1],mu_vars[idx][2]).as_bytes()).expect("Write failed");
-        for i in 0..10 {
+        print!("{},",temp as f64 / 10.0);
+        for i in 0..params.n_runs {
             print!("{},",samples[idx][i])
         }
         println!();
         // wtr.write_record(vec![samples[idx]])?;
     }
-    wtr.flush()?;
-    println!("Data written to file!");
+    // wtr.flush()?;
+    // println!("Data written to file!");
 
     Ok(())
 }
-
-
-
-
-
-
-
 
 
 
