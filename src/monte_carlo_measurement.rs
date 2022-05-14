@@ -27,8 +27,8 @@ pub trait MonteCarlo {
     // (doc) Monte Carlo estimation for spacial correlations after system is settled
     // (doc) Returns the estimate and uncertainty 1 sigma
     // fn sample_spacial_correlations(&self) -> (f64 , f64);
-    fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2]; 
-    fn sample_neighbor_corr_data(&mut self, params:MonteCarloParams) -> [f64;10]; // TODO: make this nice or remove after tests
+    fn sample_neighbor_correlations(&mut self,params:&MonteCarloParams) -> Vec<f64>; 
+    fn sample_neighbor_correlations_mean_var(&mut self, params:MonteCarloParams) -> [f64;2];
     fn sample_average_magnetization(&mut self , params:MonteCarloParams) -> [f64;2];
     // idea: temporal corrleations, need to see if this matters and how people usually implement this
     // TODO: implement below function
@@ -114,8 +114,8 @@ impl MonteCarlo for Lattice2d {
     //     // Return avg magnetization, fluctuations, uncertainty
     // }
     /// Monte Carlo estimate of nearest neighbor correlations
-    /// Returns the estimate and uncertainty 1 sigma
-    fn sample_neighbor_correlations(&mut self , params:MonteCarloParams) -> [f64;2] {
+    /// Returns a vec of mean samples, of length params.n_runs
+    fn sample_neighbor_correlations(&mut self,params:&MonteCarloParams) -> Vec<f64> {
         assert!(params.n_runs >= 2); // There must be at least two runs, or we cannot make estimate of var in mean
         // initiate nn correlation vector (empty Vec)
         let mut nn_corr = vec![0.0; params.n_runs]; // nearest neighbor correlations
@@ -133,21 +133,16 @@ impl MonteCarlo for Lattice2d {
             }
             nn_corr[i] = nn_corr_run.iter().sum::<f64>() / nn_corr_run.len() as f64;
         }
+        return nn_corr
+    }
+    /// Monte Carlo estimate of nearest neighbor correlations
+    /// Returns the mean and variance in the mean of the sample
+    fn sample_neighbor_correlations_mean_var(&mut self, params:MonteCarloParams) -> [f64;2] {
+        let nn_corr:Vec<f64> = self.sample_neighbor_correlations(&params);
         let mean_corr:f64 = nn_corr.iter().sum::<f64>() / nn_corr.len() as f64;
         let var:f64 = nn_corr.iter().map(|x| f64::powi(*x,2) - mean_corr.powi(2)).sum::<f64>() / params.n_runs as f64;
         let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
-        [mean_corr, var_in_mean]
-    }
-    /// Monte Carlo samples of nn correlations
-    /// Returns actual sampled data
-    fn sample_neighbor_corr_data(&mut self, params:MonteCarloParams) -> [f64;10] {
-        let mut nn_data:[f64; 10] = [0.0; 10];
-        for i in 0..10 {
-            self.reset_spins();
-            for _ in 0..params.flips_to_skip { self.update(); }
-            nn_data[i] = self.get_dot_spin_neighbours() as f64 / self.n_sites as f64 / 4.0;
-        }
-        nn_data
+        return [mean_corr , var_in_mean]
     }
     /// Monte Carlo estimate of avg magnetization
     /// Returns the estimate and uncertainty 1 var
