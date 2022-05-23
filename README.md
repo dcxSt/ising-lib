@@ -9,9 +9,16 @@ Thanks to increasing computational capabilities, today we are able to run larger
 
 ### Demo 
 
-Visit [this website](https://ising-2d-lattice.netlify.app/) for an interactive demo. [Hint: try clicking on the `+T`, `-T`, and `random` buttons. When the system cools to below a critical temperature it 'quenches' or spontaneously magnetizes.]
+Visit [this website](https://ising-2d-lattice.netlify.app/) for an interactive demo. [Hint: try clicking on the `+T`, `-T`, and `random` buttons. When the system cools to below a critical temperature it 'quenches' or spontaneously magnetizes—this is an example of a phase change.]
+
+This is a toy in-terminal visualization demo to give you a look at what's going on under the hood of the simulation.
 
 https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-81c6-7f76f75c0f62.mov
+
+Below is a plot of the nearest-neighbour correlations with temperature.
+
+![Plot of Nearest Neighbor correlation against Temperature](https://github.com/dcxSt/ising-lib/blob/main/example/correlation_with_nn/data/plot_76temps_nn_corr.png?raw=true)
+
 
 
 ### Implementation Details
