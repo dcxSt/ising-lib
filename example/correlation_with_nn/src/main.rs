@@ -1,10 +1,6 @@
 use ising_lib::lattice2d::{InitType, Lattice2d, SpinType, UpdateRule};
 use ising_lib::monte_carlo_measurement::{MonteCarlo, MonteCarloParams};
-// use std::io::Write;
-use std::io;
 use std::error::Error;
-// use csv;
-use std::env;
 use std::fs::File;
 use std::io::Write;
 
@@ -13,18 +9,18 @@ use std::io::Write;
 fn main() -> Result<(), Box<dyn Error>> {
     // TODO: find better way to iter through float temps so we don't have this
     // hacky scaling by a factor of 10
-    let RANGE_LOW:usize = 5;
-    let RANGE_HIGH:usize = 80;
-    let STEP_BY:usize = 1;
+    const RANGE_LOW:usize = 5;
+    const RANGE_HIGH:usize = 60;
+    const STEP_BY:usize = 1;
     // let mut mu_vars = vec![];
     let mut samples = vec![];
     println!("Starting simulation");
 
     let params = MonteCarloParams {
-        n_runs: 35,
-        flips_to_skip: 1500_000,
-        samples_per_run: 1,
-        flips_to_skip_intra_run: 0,
+        n_runs: 25,
+        flips_to_skip: 1000_000, // 1500_000,
+        samples_per_run: 10,
+        flips_to_skip_intra_run: 100_000,
     };
 
     for temp in tqdm_rs::Tqdm::new((RANGE_LOW..=RANGE_HIGH).step_by(STEP_BY)) {

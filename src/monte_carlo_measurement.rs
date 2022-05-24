@@ -83,6 +83,7 @@ pub trait MonteCarlo {
 // Or should it be automatic. I think giving the user too much optionality 
 // might make this tool confusing to use...
 
+
 /// Implements the measurement trait for the Lattice2d type
 impl MonteCarlo for Lattice2d {
     // fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> [f64;3] {

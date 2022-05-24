@@ -10,6 +10,9 @@ pub enum UpdateRule {
     Glauber,
 }
 
+// TODO: implement a hamiltonian type, for different models?
+// consider renaming SpinType to Model Type, then we can call them
+// things like SpinHalfFerromagnet or Sznajd or XY 
 /// types of spin system
 pub enum SpinType {
     SpinHalf,
@@ -22,6 +25,7 @@ pub enum InitType {
     Random,
     AllUp,
 }
+
 
 /// A type encapsulating the 2d spin lattice
 /// and basic operations performed on it

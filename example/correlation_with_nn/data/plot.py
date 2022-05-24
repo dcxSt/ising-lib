@@ -3,7 +3,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open("data04_76.csv","r") as file:
+with open("data06_56.csv","r") as file:
     data = [[float(i) for i in line] for line in csv.reader(file)]
 data = np.asarray(data)
 temp,ydata = data[:,0],data[:,1:]
