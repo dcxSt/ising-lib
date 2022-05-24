@@ -15,7 +15,7 @@ This is a toy in-terminal visualization demo to give you a look at what's going 
 
 https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-81c6-7f76f75c0f62.mov
 
-Below is a plot of the nearest-neighbour correlations with temperature.
+Below is a plot of the nearest-neighbour correlations with temperature. The transparent-green dots are data-points (i.e. samples), the blue crosses is the mean (i.e. the best guess estimate) and the red errorbar is 1 sigma of uncertainty in the mean. The below plot was generated for a 25x25 lattice grid and took about 3 minutes to run on my mac air (M1) (no gpu).
 
 ![Plot of Nearest Neighbor correlation against Temperature](https://github.com/dcxSt/ising-lib/blob/main/example/correlation_with_nn/data/plot_76temps_nn_corr.png?raw=true)
 
@@ -41,6 +41,14 @@ The **MonteCarlo** trait probabilistically estimates quantities associated with 
 
 You can use these traits in the same way regardless of what the underlying graph structure is. I.e. with the same methods and associated functions. This way, once you see one example implementation across one type of graph, you've seen them all. 
 
+### TODO
+- [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hailtonian.
+- [ ] Complete MonteCarlo trait for lattice2d
+- [ ] Figure out how to generate docs, make them pretty
+- [ ] Ship the lib
+- [ ] clean up `_convolve_2d_circ_neighbours` in measurements
+- [ ] Implement 3d lattice
+- [ ] Implement random graph
 
 
 ### Citations
