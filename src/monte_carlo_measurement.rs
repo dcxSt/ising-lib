@@ -18,6 +18,8 @@ pub trait MonteCarlo {
     // TODO: implement the following
     // (doc) Monte Carlo estimation for average Energy Fluctuations
     // (doc) Returns tuple with estimate and uncertainty 1 sigma 
+    fn sample_energy(&mut self,params:&MonteCarloParams) -> Vec<f64>;
+    fn sample_energy_mean_var(&mut self,params:MonteCarloParams) -> [f64;2];
     // fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> (f64 , f64);
     // TODO: implement the following
     // (doc) Monte Carlo estimation for average Magnetic Susceptibility
@@ -114,6 +116,30 @@ impl MonteCarlo for Lattice2d {
     //     //
     //     // Return avg magnetization, fluctuations, uncertainty
     // }
+    /// Monte Carlo sample of energy
+    /// Returns a vec of energy samples, of length params.n_runs * params.samples_per_run
+    fn sample_energy(&mut self,params:&MonteCarloParams) -> Vec<f64> {
+        let mut energy = vec![0.0; params.n_runs * params.samples_per_run];
+        for i in 0..params.n_runs {
+            self.reset_spins();
+            // Time evolve the system to cool (or heat) it
+            for _ in 0..params.flips_to_skip { self.update(); }
+            for j in 0..params.samples_per_run {
+                // Time evolve the system a bit
+                for _ in 0..params.flips_to_skip_intra_run { self.update(); }
+                energy[i * params.samples_per_run + j] = self.measure_energy();
+            }
+        }
+        return energy
+    }
+    /// Monte Carlo estimate of mean in energy and fluctuation in energy
+    /// Returns the mean and variance of the energies sampled 
+    fn sample_energy_mean_var(&mut self, params:MonteCarloParams) -> [f64;2] {
+        let energy:Vec<f64> = self.sample_energy(&params);
+        let mean_energy:f64 = energy.iter().sum::<f64>() / energy.len() as f64;
+        let var_energy = energy.iter().map(|x| f64::powi(*x,2) - mean_energy.powi(2)).sum::<f64>() / ((params.n_runs * params.samples_per_run) as f64);
+        return [mean_energy, var_energy]
+    }
     /// Monte Carlo estimate of nearest neighbor correlations
     /// Returns a vec of mean samples, of length params.n_runs
     fn sample_neighbor_correlations(&mut self,params:&MonteCarloParams) -> Vec<f64> {
