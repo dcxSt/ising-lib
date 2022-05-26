@@ -168,8 +168,8 @@ impl MonteCarlo for Lattice2d {
         let nn_corr:Vec<f64> = self.sample_neighbor_correlations(&params);
         let mean_corr:f64 = nn_corr.iter().sum::<f64>() / nn_corr.len() as f64;
         let var:f64 = nn_corr.iter().map(|x| f64::powi(*x,2) - mean_corr.powi(2)).sum::<f64>() / params.n_runs as f64;
-        let var_in_mean:f64 = var / (params.n_runs as f64 - 1.0);
-        return [mean_corr , var_in_mean]
+        // divide var by: (params.n_runs as f64 - 1.0); for variance in the mean
+        return [mean_corr , var]
     }
     /// Monte Carlo estimate of avg magnetization
     /// Returns the estimate and uncertainty 1 var
