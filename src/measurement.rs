@@ -1,5 +1,6 @@
-//! The Measurement type calculates quantities on systems that do not require 
-//! averaging over multiple samples
+//! The Measurement type calculates quantities on systems that can be
+//! measured instantaneously, i.e. that do not require averaging over 
+//! multiple samples.
 
 use ndarray::prelude::*;
 use crate::lattice2d::*;

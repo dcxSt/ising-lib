@@ -1,6 +1,6 @@
 # Rust Ising Library
 
-Ising Lib is a tool to aid researchers perform ising model simulations on lattices and other graphs. It aims to provide researchers and curious people with a broad range of tools optimized for parallel processing and gpus. 
+Ising Lib is a tool to aid researchers and curious people perform Ising model simulations on lattices and other graphs. It aims to provide a broad range of fast Ising simulation tools.
 
 The ising model is popular because it is very simple to describe mathematically, and has a broad range of applications. Originally it was concieved to model spontaneous magnitization of ferromagnets due to cooling, but became very popular within the physics community in the mid 1900s for modelling many types of phase changes. ([Click here to learn about universality classes](https://www.wikiwand.com/en/Phase_transition#/Critical_exponents_and_universality_classes))
 
@@ -11,13 +11,13 @@ Thanks to increasing computational capabilities, today we are able to run larger
 
 Visit [this website](https://ising-2d-lattice.netlify.app/) for an interactive demo. [Hint: try clicking on the `+T`, `-T`, and `random` buttons. When the system cools to below a critical temperature it 'quenches' or spontaneously magnetizes—this is an example of a phase change.]
 
-This is a toy in-terminal visualization demo to give you a look at what's going on under the hood of the simulation.
+Below is a toy in-terminal visualization demo ([examples/displayrun_lattice2d](https://github.com/dcxSt/ising-lib/tree/main/examples/displayrun_lattice2d)) to give you a look at what's going on under the hood of the simulation.
 
 https://user-images.githubusercontent.com/21654151/156935828-114c918a-d309-42ed-81c6-7f76f75c0f62.mov
 
 Below is a plot of the nearest-neighbour correlations with temperature. The transparent-green dots are data-points (i.e. samples), the blue crosses is the mean (i.e. the best guess estimate) and the red errorbar is 1 sigma of uncertainty in the mean. The below plot was generated for a 25x25 lattice grid and took about 3 minutes to run on my mac air (M1) (no gpu).
 
-![Plot of Nearest Neighbor correlation against Temperature](https://github.com/dcxSt/ising-lib/blob/main/example/correlation_with_nn/data/plot_76temps_nn_corr.png?raw=true)
+![Plot of Nearest Neighbor correlation against Temperature](https://github.com/dcxSt/ising-lib/blob/main/examples/correlation_with_nn/data/plot_76temps_nn_corr.png?raw=true)
 
 
 
@@ -29,6 +29,8 @@ This library makes it easy for you to estimate properties of a class of markov c
 
 This library provides a type for each kind of graph you may want to use. Currently implemented are:
 - **Lattice2D**, the typical spin-half (for now) lattice
+TODO:
+- **Lattice3D**
 - **Graph** (maybe rename to GraphGeneral)
 
 *Wishlist: once we have a fully functional library that implements Lattice2D and Graph type for spin-half, we will first make the spin types more vercetile (e.g. with spin three-half or xy-model), then we will introduce more specialized graph types: Lattice1D (which is trivial to solve mathematically and will only be useful as an example), Lattice3D, LatticeND, and other types of graph.*
@@ -42,13 +44,13 @@ The **MonteCarlo** trait probabilistically estimates quantities associated with 
 You can use these traits in the same way regardless of what the underlying graph structure is. I.e. with the same methods and associated functions. This way, once you see one example implementation across one type of graph, you've seen them all. 
 
 ### TODO
-- [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hailtonian.
+- [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hailtonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
 - [ ] Figure out how to generate docs, make them pretty
 - [ ] Ship the lib
 - [ ] clean up `_convolve_2d_circ_neighbours` in measurements
 - [ ] Implement 3d lattice
-- [ ] Implement random graph
+- [ ] Implement random graph and general graph type.
 
 
 ### Citations
