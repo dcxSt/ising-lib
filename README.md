@@ -44,9 +44,11 @@ The **MonteCarlo** trait probabilistically estimates quantities associated with 
 You can use these traits in the same way regardless of what the underlying graph structure is. I.e. with the same methods and associated functions. This way, once you see one example implementation across one type of graph, you've seen them all. 
 
 ### TODO
+- [ ] Implement threading in MonteCarlo so that everything can run in [parallel](https://www.programming-idioms.org/cheatsheet/Rust)
+  - [ ] Implement deep copy of graph / lattice objects
 - [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hailtonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
-- [ ] Figure out how to generate docs, make them pretty
+- [ ] Generate docs, make them pretty
 - [ ] Ship the lib
 - [ ] clean up `_convolve_2d_circ_neighbours` in measurements
 - [ ] Implement 3d lattice

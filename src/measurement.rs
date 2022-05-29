@@ -7,8 +7,8 @@ use crate::lattice2d::*;
 
 /// The measurement trait measures quantities across different graphs
 pub trait Measurement {
-    fn get_spin_sum(&self) -> i32;              // get the sum of the spin values
-    fn get_spin_expected_value(&self) -> f64;   // get the expected value of the spin, i.e. the magnetization per spin 
+    fn get_spin_sum(&self) -> i32;      // get the sum of the spin values
+    fn get_spin_mean(&self) -> f64;     // get the mean value of spins 
     fn _convolve_2d_circ_neighbours(mat:&Array2<i32>) -> Array2<i32>; // convolves mat with filt with circular boundary conditions
     fn get_dot_spin_neighbours(&self) -> i32;   // get dot-product of each spin with the sum of it's neighbours
     fn measure_energy(&self) -> f64;            // get total energy of system
@@ -27,11 +27,13 @@ impl Measurement for Lattice2d {
         self.nodes.iter()
             .fold(0 , |acc, &x| acc + x)
     }
-    /// method returns expected value of lattice
+
+    /// method returns mean spin of lattice
     /// ∑ s_i / n
-    fn get_spin_expected_value(&self) -> f64 {
+    fn get_spin_mean(&self) -> f64 {
         self.get_spin_sum() as f64 / (self.n_sites as f64)
     }
+
     /// Convolves the 2d array mat, with a filter array filt
     /// Assumes periodic (/circular) boundary conditions
     /// This is kindof a bad hacky solution, we'll see how well it performs...
@@ -108,7 +110,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_spin_expected_value() {
+    fn test_spin_mean() {
         println!("\n----------------------\nTesting Lattice2d, spin_expected_value");
         let mut lattice = Lattice2d::new(
             [25,25],
@@ -123,7 +125,7 @@ mod test {
         // use std::time::Duration;
         // std::thread::sleep(Duration::from_secs(3));
         for _ in 0..1 { // set 1 to 1000 for slideshow
-            println!("< Spin > = {}", lattice.get_spin_expected_value());
+            println!("< Spin > = {}", lattice.get_spin_mean());
             for _ in 0..1 { // set 1 to 100 for slideshow
                 lattice.update();
             }
