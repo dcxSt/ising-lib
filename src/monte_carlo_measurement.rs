@@ -14,29 +14,9 @@ pub trait MonteCarlo {
     /// Calculates and returns basic metrics by Monto Carlo sampling
     /// - Energy fluctuations
     /// - Avg Magnetic Susceptibility
-    // fn sample_metrics(&self) -> Array? Vector?, simple better probably immutable basic array [] is best;
-    // TODO: implement the following
-    // (doc) Monte Carlo estimation for average Energy Fluctuations
-    // (doc) Returns tuple with estimate and uncertainty 1 sigma
     fn sample_energy(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
-    // fn sample_energy_fluctuations(&self , params:MonteCarloParams) -> (f64 , f64);
-    // TODO: implement the following
-    // (doc) Monte Carlo estimation for average Magnetic Susceptibility
-    // (doc) Returns the estimate and uncertainty 1 sigma
-    // fn sample_magnetic_fluctuations(&self) -> (f64 , f64);
-    // TODO: implement the following
-    // (doc) Monte Carlo estimation for spacial correlations after system is settled
-    // (doc) Returns the estimate and uncertainty 1 sigma
-    // fn sample_spacial_correlations(&self) -> (f64 , f64);
     fn sample_neighbor_correlations(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_magnetization(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
-    // idea: temporal corrleations, need to see if this matters and how people usually implement this
-    // TODO: implement below function
-    // fn sample_temporal_correlations(&self) -> (f64 , f64);
-    // (doc) Monte Carlo estimation of all of the above
-    // (doc) re-implements each of the above metrics, and returns them in a vector
-    // perhaps a dictionary would be better? what does rust offer instead of
-    // dictinoaries?
     // TODO: implement below function
     // fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
 }
@@ -120,10 +100,10 @@ impl MonteCarlo for Lattice2d {
         for i in 0..params.n_runs {
             self.reset_spins();
             // Time evolve the system to cool (or heat) it
-            (0..params.flips_to_skip).map(|_| self.update());
+            self.update_n(params.flips_to_skip);
             for j in 0..params.samples_per_run {
                 // Time evolve the system a bit
-                (0..params.flips_to_skip_between_samples).map(|_| self.update());
+                self.update_n(params.flips_to_skip_between_samples);
                 energy[i][j] = self.measure_energy();
             }
         }
@@ -138,10 +118,10 @@ impl MonteCarlo for Lattice2d {
         for i in 0..params.n_runs {
             self.reset_spins();
             // Time evolve the system to cool (or heat) it
-            (0..params.flips_to_skip).map(|_| self.update());
+            self.update_n(params.flips_to_skip);
             for j in 0..params.samples_per_run {
                 // Time evolve the system a bit
-                (0..params.flips_to_skip_between_samples).map(|_| self.update());
+                self.update_n(params.flips_to_skip_between_samples);
                 nn_corr[i][j] = self.get_dot_spin_neighbours() as f64 / self.n_sites as f64 / 4.0;
                 // dividing by 4.0 scales it between -1 and +1, since 4 neighbours
             }
@@ -157,10 +137,10 @@ impl MonteCarlo for Lattice2d {
         for i in 0..params.n_runs {
             self.reset_spins();
             // Time evolve the system to cool (or heat) it
-            (0..params.flips_to_skip).map(|_| self.update());
+            self.update_n(params.flips_to_skip);
             for j in 0..params.samples_per_run {
                 // Time evolve the system a bit
-                (0..params.flips_to_skip_between_samples).map(|_| self.update());
+                self.update_n(params.flips_to_skip_between_samples);
                 mag_samples[i][j] = self.get_spin_mean();
             }
         }
@@ -190,15 +170,15 @@ mod test {
     #[test]
     fn test_sample_energy() {
         let params = MonteCarloParams {
-            n_runs: 24,
-            flips_to_skip: 1_000_000, // 1500_000,
+            n_runs: 5,
+            flips_to_skip: 1_000, // 1500_000,
             samples_per_run: 10,
-            flips_to_skip_between_samples: 100_000,
+            flips_to_skip_between_samples: 100,
         };
         let beta: f64 = 2.4; // roughly critical temp
                              // Initiate a lattice
         let mut lattice = Lattice2d::new(
-            [25, 25],
+            [9, 9],
             UpdateRule::Metropolis,
             SpinType::SpinHalf,
             InitType::Random,
@@ -212,3 +192,6 @@ mod test {
         assert_eq!(sample_points[0].len(), params.samples_per_run);
     }
 }
+
+
+

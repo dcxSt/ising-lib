@@ -45,15 +45,25 @@ You can use these traits in the same way regardless of what the underlying graph
 
 ### TODO
 - [ ] Implement threading in MonteCarlo so that everything can run in [parallel](https://www.programming-idioms.org/cheatsheet/Rust)
-  - [ ] Implement deep copy of graph / lattice objects
-- [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hailtonian for lattice 2d.
+  - [x] Implement deep clone for Lattice2d 
+- [ ] Implement bench marks for lattice 2d
+- [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hamiltonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
 - [ ] Generate docs, make them pretty
 - [ ] Ship the lib
 - [ ] clean up `_convolve_2d_circ_neighbours` in measurements
 - [ ] Implement 3d lattice
 - [ ] Implement random graph and general graph type.
+- [ ] Example calculate magnetic susceptibility
+- [ ] Example calculate energy fluctuation
 
+### Ideas
+Monte Carlo Routines
+- Correlations over larger spatial distances
+- Correlations with n'th neighbour (n to the right)
+- Correlations with (k,n)'th neighbour (n right, k up)
+- Restructure so that you can sample multiple metrics each time
+- Temporal correlations: put some though into how 'time' will scale. If you want to evaluate how much time is going by and compare different size grids, we need to scale the number of times we attempt a flip by nsize (number of sites).
 
 ### Citations
 

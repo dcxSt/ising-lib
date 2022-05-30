@@ -5,6 +5,7 @@ use rand::prelude::SliceRandom;
 use rand::Rng;
 
 /// update rule for Lattice 2d
+#[derive(Clone, Copy)]
 pub enum UpdateRule {
     Metropolis,
     Glauber,
@@ -12,8 +13,9 @@ pub enum UpdateRule {
 
 // TODO: implement a hamiltonian type, for different models?
 // consider renaming SpinType to Model Type, then we can call them
-// things like SpinHalfFerromagnet or Sznajd or XY 
+// things like SpinHalfFerromagnet or Sznajd or XY
 /// types of spin system
+#[derive(Clone, Copy)]
 pub enum SpinType {
     SpinHalf,
     SpinThreeHalf,
@@ -21,11 +23,11 @@ pub enum SpinType {
 }
 
 /// initial condition
+#[derive(Clone, Copy)]
 pub enum InitType {
     Random,
     AllUp,
 }
-
 
 /// A type encapsulating the 2d spin lattice
 /// and basic operations performed on it
@@ -47,21 +49,22 @@ pub struct Lattice2d {
     pub beta: f64, // beta = 1/(k_b * T), defaults to 0.43
 }
 
-/// Implement basic methods for the 2d lattice type
-impl Lattice2d {
-    /// Create a new lattice of given dims with randomly generated spins
-    pub fn new_basic(dims: [usize; 2]) -> Self {
+impl Clone for Lattice2d {
+    fn clone(&self) -> Self {
         Self::new(
-            dims,
-            UpdateRule::Metropolis,
-            SpinType::SpinHalf,
-            InitType::Random,
-            1.0f64,
-            0.0f64,
-            0.43f64,
+            self.dims,
+            self.update_rule,
+            self.spin_type,
+            self.init_type,
+            self.j,
+            self.h,
+            self.beta,
         )
     }
+}
 
+/// Implement basic methods for the 2d lattice type
+impl Lattice2d {
     /// Create a new lattice of given dims with specific implementation details
     pub fn new(
         dims: [usize; 2],
@@ -73,7 +76,7 @@ impl Lattice2d {
         beta: f64,
     ) -> Self {
         // TODO: implement initialization for different spin types
-        let nodes:Array2::<i32> = Lattice2d::init_spins(&init_type, &dims);
+        let nodes: Array2<i32> = Lattice2d::init_spins(&init_type, &dims);
 
         let (width, height) = nodes.dim();
 
@@ -90,14 +93,28 @@ impl Lattice2d {
         }
     }
 
+    /// Create a new lattice of given dims with randomly generated spins
+    pub fn new_basic(dims: [usize; 2]) -> Self {
+        Self::new(
+            dims,
+            UpdateRule::Metropolis,
+            SpinType::SpinHalf,
+            InitType::Random,
+            1.0f64,
+            0.0f64,
+            0.43f64,
+        )
+    }
+
     /// initiates the sites to some config (often random) as specified by init_type
-    fn init_spins(init_type:&InitType, dims:&[usize; 2]) -> Array2::<i32> {
-        let nodes: Array2<i32>; 
-        match init_type{
+    fn init_spins(init_type: &InitType, dims: &[usize; 2]) -> Array2<i32> {
+        let nodes: Array2<i32>;
+        match init_type {
             InitType::Random => {
                 let mut rng = rand::thread_rng();
                 nodes = Array2::from_shape_fn(*dims, |_| *[-1, 1].choose(&mut rng).unwrap());
-            } InitType::AllUp => {
+            }
+            InitType::AllUp => {
                 nodes = Array2::<i32>::ones(*dims);
             }
         }
@@ -131,7 +148,7 @@ impl Lattice2d {
 
         // two times dot prod of spin w/ it's neighbours
         // this is the energy required to flip
-        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64) 
+        2.0 * self.j * ((neighbour_spin_sum * self.nodes[[idx0, idx1]]) as f64)
             + self.h * (self.nodes[[idx0, idx1]] as f64)
     }
 
@@ -163,7 +180,7 @@ impl Lattice2d {
     }
 
     /// Update the lattice by n timesteps
-    pub fn update_n(&mut self, n:usize) {
+    pub fn update_n(&mut self, n: usize) {
         for _ in 0..n {
             self.update();
         }
@@ -228,8 +245,14 @@ mod tests {
     }
 
     #[test]
+    fn test_clone_lattice() {
+        let lattice = Lattice2d::new_basic([3, 3]);
+        let _newlat = lattice.clone();
+    }
+
+    #[test]
     fn test_update_n() {
-        let mut lattice = Lattice2d::new_basic([5,10]);
+        let mut lattice = Lattice2d::new_basic([5, 10]);
         lattice.update_n(10);
     }
 
@@ -244,24 +267,25 @@ mod tests {
 
     #[test]
     fn test_init_spins() {
-        let nodes:Array2::<i32> = Lattice2d::init_spins(&InitType::Random , &[4 as usize, 5 as usize]);
+        let nodes: Array2<i32> =
+            Lattice2d::init_spins(&InitType::Random, &[4 as usize, 5 as usize]);
         let (width, height) = nodes.dim();
-        assert_eq!(width , 4usize);
-        assert_eq!(height , 5usize);
-        assert!(nodes[[3,4]] == 1 || nodes[[3,4]] == -1);
-        assert!(nodes[[0,0]] == 1 || nodes[[0,0]] == -1);
+        assert_eq!(width, 4usize);
+        assert_eq!(height, 5usize);
+        assert!(nodes[[3, 4]] == 1 || nodes[[3, 4]] == -1);
+        assert!(nodes[[0, 0]] == 1 || nodes[[0, 0]] == -1);
 
-        let nodes:Array2::<i32> = Lattice2d::init_spins(&InitType::AllUp , &[2 as usize, 3 as usize]);
-        let (width , height) = nodes.dim();
-        assert_eq!(width , 2usize);
-        assert_eq!(height , 3usize);
-        assert_eq!(nodes[[1,1]] , 1i32);
+        let nodes: Array2<i32> = Lattice2d::init_spins(&InitType::AllUp, &[2 as usize, 3 as usize]);
+        let (width, height) = nodes.dim();
+        assert_eq!(width, 2usize);
+        assert_eq!(height, 3usize);
+        assert_eq!(nodes[[1, 1]], 1i32);
     }
 
     #[test]
     fn test_reset_spins() {
         let mut lattice = Lattice2d::new_basic([5, 10]);
-        lattice.reset_spins(); // all we test for here is runtime errors 
+        lattice.reset_spins(); // all we test for here is runtime errors
     }
 
     #[test]
@@ -269,8 +293,10 @@ mod tests {
         let mut lattice = Lattice2d::new_basic([5, 5]);
         lattice.disp_terminal();
         // this tests the update function 300 times, it should only take an instant
-        for _ in 0..3 { // set 3 to 3000 for slideshow 
-            for _ in 0..1 { // set 1 to 100 for slideshow
+        for _ in 0..3 {
+            // set 3 to 3000 for slideshow
+            for _ in 0..1 {
+                // set 1 to 100 for slideshow
                 lattice.update();
             }
             lattice.disp_terminal();
