@@ -162,6 +162,13 @@ impl Lattice2d {
         }
     }
 
+    /// Update the lattice by n timesteps
+    pub fn update_n(&mut self, n:usize) {
+        for _ in 0..n {
+            self.update();
+        }
+    }
+
     /// Display lattice in terminal
     pub fn disp_terminal(&self) {
         let mut string = "----------------\n".to_owned();
@@ -218,6 +225,12 @@ mod tests {
             lattice.n_sites,
             lattice.dims[0] as i32 * lattice.dims[1] as i32
         )
+    }
+
+    #[test]
+    fn test_update_n() {
+        let mut lattice = Lattice2d::new_basic([5,10]);
+        lattice.update_n(10);
     }
 
     #[test]
