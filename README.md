@@ -49,9 +49,9 @@ You can use these traits in the same way regardless of what the underlying graph
 - [ ] Implement bench marks for lattice 2d
 - [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hamiltonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
-- [ ] Generate docs, make them pretty
+- [ ] Generate docs, make them pretty and informative
 - [ ] Ship the lib
-- [ ] clean up `_convolve_2d_circ_neighbours` in measurements
+- [x] clean up `_convolve_2d_circ_neighbours` in measurements
 - [ ] Implement 3d lattice
 - [ ] Implement random graph and general graph type.
 - [ ] Example calculate magnetic susceptibility

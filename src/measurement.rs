@@ -36,39 +36,22 @@ impl Measurement for Lattice2d {
 
     /// Convolves the 2d array mat, with a filter array filt
     /// Assumes periodic (/circular) boundary conditions
-    /// This is kindof a bad hacky solution, we'll see how well it performs...
+    /// This can still be optimized
     fn _convolve_2d_circ_neighbours(mat:&Array2<i32>) -> Array2<i32> {
-        let mut result = Array2::<i32>::zeros(mat.raw_dim());
-        let _xmax:usize = mat.shape()[0] - 1;
-        let _ymax:usize = mat.shape()[1] - 1;
         // Fill the result matrix (result of convolution)
-        for i in 0..=_xmax {
-            for j in 0..=_ymax {
-                // for some very strange reason, match gives wierd results
-                // Answered on Stack Overflow https://stackoverflow.com/questions/71911005/strange-matching-behaviour-in-for-loop 
-                if i==0 && j==0 {
-                    result[[i,j]] = mat[[0,1]] + mat[[0,_ymax]] + mat[[1,0]] + mat[[_xmax,0]]
-                } else if i==0 && j==_ymax {
-                    result[[i,j]] = mat[[0,0]] + mat[[0,j-1]] + mat[[1,j]] + mat[[_xmax,j]]
-                } else if i==_xmax && j==0 {
-                    result[[i,j]] = mat[[0,j]] + mat[[i-1,j]] + mat[[i,1]] + mat[[i,_ymax]]
-                } else if i==_xmax && j==_ymax {
-                    result[[i,j]] = mat[[i,j-1]] + mat[[i,0]] + mat[[i-1,j]] + mat[[0,j]]
-                } else if i==0 {
-                    result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[1,j]] + mat[[_xmax,j]]
-                } else if i==_xmax {
-                    result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[0,j]] + mat[[i-1,j]]
-                } else if j==0 {
-                    result[[i,j]] = mat[[i,j+1]] + mat[[i,_ymax]] + mat[[i+1,j]] + mat[[i-1,j]]
-                } else if j==_ymax {
-                    result[[i,j]] = mat[[i,0]] + mat[[i,j-1]] + mat[[i+1,j]] + mat[[i-1,j]]
-                } else {
-                    result[[i,j]] = mat[[i,j+1]] + mat[[i,j-1]] + mat[[i+1,j]] + mat[[i-1,j]]
-                }
-            }
-        }
-        result
+        let roll = |ix: usize, amt: i32, max: usize| {
+            let max = max as i32;
+            ((ix as i32 + amt + max) % max) as usize // +max, might be neg
+        };
+        let (width, height) = mat.dim();
+        Array2::from_shape_fn((width, height), |ix| {
+            mat[[ix.0,roll(ix.1,1,height)]] 
+                + mat[[ix.0,roll(ix.1,-1,height)]]
+                + mat[[roll(ix.0,1,width),ix.1]]
+                + mat[[roll(ix.0,-1,width),ix.1]]
+        })
     }
+
     /// method returns dot of spins with their neighbors
     /// ∑ (s_i * s_j)   summing over all i,j pairs of neighbors
     fn get_dot_spin_neighbours(&self) -> i32 {
