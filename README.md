@@ -44,9 +44,9 @@ The **MonteCarlo** trait probabilistically estimates quantities associated with 
 You can use these traits in the same way regardless of what the underlying graph structure is. I.e. with the same methods and associated functions. This way, once you see one example implementation across one type of graph, you've seen them all. 
 
 ### TODO
-- [ ] Implement threading in MonteCarlo so that everything can run in [parallel](https://www.programming-idioms.org/cheatsheet/Rust)
+- [x] Implement threading in MonteCarlo so that everything can run in [parallel](https://www.programming-idioms.org/cheatsheet/Rust)
   - [x] Implement deep clone for Lattice2d 
-- [ ] Implement bench marks for lattice 2d
+- [ ] Implement benchmarks for lattice 2d, including monte carlo, parallel processing etc.
 - [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hamiltonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
 - [ ] Generate docs, make them pretty and informative
