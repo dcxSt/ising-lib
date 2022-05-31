@@ -77,19 +77,8 @@ impl MonteCarlo for Lattice2d {
     fn sample_energy_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>> {
         // let mut energy = vec![vec![0.0; params.samples_per_run]; params.n_runs]; // all samples
         let mut energy = vec![];
-        // let threads: Vec<_> = (0..params.n_runs).map(|i| {
-        //     let mut lattice_clone = self.clone();
-        //     let samples_per_run = params.samples_per_run;
-        //     let flips_to_skip = params.flips_to_skip;
-        //     let flips_to_skip_between_runs = params.flips_to_skip_between_runs;
-        //     thread::spawn(move || {
-        //         for j in 0..samples_per_run {
-        //             
-        //         }
-        //     })
-        // }).collect();
         let mut fetch_handle = vec![];
-        for i in 0..params.n_runs {
+        for _ in 0..params.n_runs {
             // Create a clone: inits new lattice with same input params
             let mut lattice_copy = self.clone();
             let flips_to_skip = params.flips_to_skip;
@@ -107,7 +96,7 @@ impl MonteCarlo for Lattice2d {
                 erg_samples
             }));
         }
-        // fetch_handle.into_iter().map(|c| c.join().unwrap());
+        // fetch_handle.into_iter().map(|c| energy.push(c.join().unwrap()));
 
         for thread in fetch_handle.into_iter() {
             energy.push(thread.join().unwrap());
