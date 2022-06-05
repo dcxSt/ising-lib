@@ -17,8 +17,10 @@ pub trait MonteCarlo {
     /// - Avg Magnetic Susceptibility
     fn sample_energy_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_energy(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
+    fn sample_neighbor_correlations_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_neighbor_correlations(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_magnetization(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
+    // fn sample_magnetization_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     // TODO: implement below function
     // fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
 }
@@ -125,8 +127,38 @@ impl MonteCarlo for Lattice2d {
         nn_corr
     }
 
-    /// Monte Carlo estimate of avg magnetization
-    /// Returns the estimate and uncertainty 1 var
+    /// Monte Carlo estimate of nearest neighbor correlations
+    /// Returns a vec of mean samples, of length params.n_runs
+    fn sample_neighbor_correlations_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>> {
+        // initiate nearest neighbour correlation vector (empty Vec)
+        let mut nn_corr = vec![];
+        let mut fetch_handle = vec![];
+        for _ in 0..params.n_runs {
+            // Create a clone: inits new lattice with same input params
+            let mut lattice_copy = self.clone();
+            let flips_to_skip = params.flips_to_skip;
+            let flips_to_skip_between_samples = params.flips_to_skip_between_samples;
+            let samples_per_run = params.samples_per_run;
+            // Time evolve system to cool (or heat) it
+            fetch_handle.push(thread::spawn(move || -> Vec<f64> {
+                lattice_copy.update_n(flips_to_skip);
+                let mut nn_samples = vec![];
+                for _ in 0..samples_per_run {
+                    // Time evolve the system a bit
+                    lattice_copy.update_n(flips_to_skip_between_samples);
+                    nn_samples.push(lattice_copy.get_dot_spin_neighbours() as f64 / lattice_copy.n_sites as f64 / 4.0);
+                }
+                nn_samples
+            }));
+        }
+        for thread in fetch_handle.into_iter() {
+            nn_corr.push(thread.join().unwrap());
+        }
+        return nn_corr;
+    }
+
+    /// Monte Carlo sample the magnetization
+    /// Returns a vec of mean samples, of length params.n_runs
     fn sample_magnetization(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>> {
         let mut mag_samples = vec![vec![0.0; params.samples_per_run]; params.n_runs];
         // Instead, init new lattice object and use multithreding for parallel processing
@@ -142,6 +174,7 @@ impl MonteCarlo for Lattice2d {
         }
         mag_samples
     }
+
 
     // TODO: implement the following
     // (doc) Monte Carlo estimation for spacial correlations after system is settled
@@ -208,6 +241,53 @@ mod test {
         let energy_samples: Vec<Vec<f64>> = lattice.sample_energy_parallel(&params);
         assert_eq!(energy_samples.len(), params.n_runs);
         assert_eq!(energy_samples[0].len(), params.samples_per_run);
+    }
+
+    #[test]
+    fn test_sample_neighbor_correlations() {
+        let params = MonteCarloParams {
+            n_runs: 5,
+            flips_to_skip: 1_000, // 1500_000,
+            samples_per_run: 10,
+            flips_to_skip_between_samples: 100,
+        };
+        let beta: f64 = 2.4; // roughly critical temp
+                             // Initiate a lattice
+        let mut lattice = Lattice2d::new(
+            [9, 9],
+            UpdateRule::Metropolis,
+            SpinType::SpinHalf,
+            InitType::Random,
+            1.0f64, // j interaction constant
+            0.1f64, // h static field term
+            beta,   // 1/TkB
+        );
+        let nn_corr: Vec<Vec<f64>> = lattice.sample_neighbor_correlations(&params);
+        assert_eq!(nn_corr.len(), params.n_runs);
+        assert_eq!(nn_corr[0].len(), params.samples_per_run);
+    }
+
+    #[test]
+    fn test_neighbor_correlations_parallel() {
+        let params = MonteCarloParams {
+            n_runs: 5,
+            flips_to_skip: 1_000,
+            samples_per_run: 10,
+            flips_to_skip_between_samples: 100,
+        };
+        let beta: f64 = 2.4;
+        let mut lattice = Lattice2d::new(
+            [9,9],
+            UpdateRule::Metropolis,
+            SpinType::SpinHalf,
+            InitType::Random,
+            1.0f64, // j interaction constant
+            0.0f64, // h static field term
+            beta,   // 1/TkB
+        );
+        let nn_corr: Vec<Vec<f64>> = lattice.sample_neighbor_correlations_parallel(&params);
+        assert_eq!(nn_corr.len(), params.n_runs);
+        assert_eq!(nn_corr[0].len(), params.samples_per_run);
     }
 }
 

@@ -46,6 +46,7 @@ You can use these traits in the same way regardless of what the underlying graph
 ### TODO
 - [x] Implement threading in MonteCarlo so that everything can run in [parallel](https://www.programming-idioms.org/cheatsheet/Rust)
   - [x] Implement deep clone for Lattice2d 
+- [ ] Implement MonteCarlo trait, three metrics: energy, neighbor correlations, magnetization, in parallel. 
 - [ ] Implement benchmarks for lattice 2d, including monte carlo, parallel processing etc.
 - [ ] Implement [Sznajd model](https://www.wikiwand.com/en/Sznajd_model) hamiltonian for lattice 2d.
 - [ ] Complete MonteCarlo trait for lattice2d
@@ -73,6 +74,7 @@ Monte Carlo Routines
 
 [3] [The Ising Model: Brief Introduction and It's Application](https://www.intechopen.com/chapters/71210) is a short intro to Ising models, including some basic applications. 
 
+[4] [Hadrien ising spins](https://github.com/HadrienG2/ising-spins)
 
 ---
 
