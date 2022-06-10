@@ -19,8 +19,8 @@ pub trait MonteCarlo {
     fn sample_energy(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_neighbor_correlations_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_neighbor_correlations(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
+    fn sample_magnetization_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     fn sample_magnetization(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
-    // fn sample_magnetization_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>>;
     // TODO: implement below function
     // fn sample_estimate_all_metrics(&self , params:MonteCarloParams) -> Vec;
 }
@@ -155,6 +155,34 @@ impl MonteCarlo for Lattice2d {
             nn_corr.push(thread.join().unwrap());
         }
         return nn_corr;
+    }
+
+
+    fn sample_magnetization_parallel(&mut self, params: &MonteCarloParams) -> Vec<Vec<f64>> {
+        let mut fetch_handle = vec![];
+        for _ in 0..params.n_runs {
+            // Create a clone: inits a new lattice with same input params
+            let mut lattice_copy = self.clone();
+            let flips_to_skip = params.flips_to_skip;
+            let flips_to_skip_between_samples = params.flips_to_skip_between_samples;
+            let samples_per_run = params.samples_per_run;
+            // Time evolve system to cool (or heat) it
+            fetch_handle.push(thread::spawn(move || -> Vec<f64> {
+                lattice_copy.update_n(flips_to_skip);
+                let mut mag_samples = vec![];
+                for _ in 0..samples_per_run {
+                    // Time evolve the system a bit
+                    lattice_copy.update_n(flips_to_skip_between_samples);
+                    mag_samples.push(lattice_copy.get_dot_spin_neighbours() as f64 / lattice_copy.n_sites as f64 / 4.0);
+                }
+                mag_samples
+            }));
+        }
+        let mut magnetization = vec![];
+        for thread in fetch_handle.into_iter() {
+            magnetization.push(thread.join().unwrap());
+        }
+        return magnetization;
     }
 
     /// Monte Carlo sample the magnetization
