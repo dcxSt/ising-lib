@@ -11,15 +11,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     // hacky scaling by a factor of 10
     const RANGE_LOW: f64 = 0.5;
     const RANGE_HIGH: f64 = 6.0;
-    const STEP_BY: f64 = 0.1;
+    const STEP_BY: f64 = 0.2;
     let mut samples = vec![];
     println!("Starting simulation...");
 
     let params = MonteCarloParams {
         n_runs: 25,
-        flips_to_skip: 1_000_000, // 1500_000,
+        flips_to_skip: 300_000, // 1500_000,
         samples_per_run: 10,
-        flips_to_skip_between_samples: 100_000,
+        flips_to_skip_between_samples: 30_000,
     };
 
     for temp in tqdm_rs::Tqdm::new(
@@ -43,12 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             beta,   // 1/Tkb
         );
 
-        let sample_points: Vec<f64> = lattice.sample_neighbor_correlations(&params);
-        samples.push(sample_points)
-        // let mu_var = lattice.sample_neighbor_correlations(params);
-        // mu_vars.push([mu_var[0],mu_var[1],temp as f64]);
-        // let mu_var = lattice.sample_average_magnetization(params);
-        // mu_vars.push([mu_var[0],mu_var[1],temp as f64])
+        samples.push(lattice.sample_neighbor_correlations(&params));
     }
     println!("Done computing. Writing to file...");
 
@@ -59,11 +54,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         .enumerate()
     {
         write!(&mut file, "{},", temp as f64 / 10.0).unwrap();
-        for i in 0..(params.n_runs - 1) {
-            write!(&mut file, "{},", samples[idx][i]).unwrap();
+        for i in 0..(params.n_runs) {
+            for j in 0..(params.samples_per_run) {
+                write!(&mut file, "{}", samples[idx][i][j]).unwrap();
+                if (i != params.n_runs-1) | (j  != params.samples_per_run - 1) {
+                    write!(&mut file, ",").unwrap();
+                }
+            }
         }
-        writeln!(&mut file, "{}", samples[idx][params.n_runs - 1]).unwrap();
+        writeln!(&mut file, "").unwrap();
     }
-
     Ok(())
 }

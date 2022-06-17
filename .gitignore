@@ -6,3 +6,4 @@
 *.lock
 *.gif
 .DS_Store
+*.ipynb

@@ -1,44 +1,69 @@
-# TODO: implement this in rust... eventually
-import csv
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 import numpy as np
+import csv
 import matplotlib.pyplot as plt
 
-with open("data06_56.csv","r") as file:
+
+# In[4]:
+
+
+with open("data08.csv","r") as file:
     data = [[float(i) for i in line] for line in csv.reader(file)]
-data = np.asarray(data)
-temp,ydata = data[:,0],data[:,1:]
-data_dict = {temp[idx]:{"samples":ydata[idx,:]} for idx in range(len(temp))} # key = temp, value = dict {samples, mean, var}
-for idx,t in enumerate(temp):
-    samples = data_dict[t]["samples"]
-    mu = samples.mean() 
-    var = np.power(samples - mu,2).mean()
-    data_dict[t]["mu"] = mu
-    data_dict[t]["var"] = var
-
-# TODO:make this plot pretty, put it in the readme of this example
-# TODO: first step is to get better time data, better resolution
-plt.figure(figsize=(8,5))
-plt.title("Nearest Neighbour Correlations\nMonte Carlo Sample")
-for t,data in data_dict.items():
-    plt.plot([t]*len(data["samples"]),data["samples"],"g.",alpha=0.2)
-    plt.plot([t],data["mu"],"bx")
-    plt.errorbar(x=[t],y=data["mu"],xerr=0,yerr=np.sqrt(data["var"]),color="red")
-
-plt.xlabel("Temperature")
-plt.ylabel("Nearest Neighbour Correlation")
-plt.grid()
-
-plt.tight_layout()
-
-# plt.plot(temp,mu,"-",color="black",alpha=0.3,linewidth=0.5)
-# plt.errorbar(x=temp,y=mu,xerr=np.zeros(len(temp)),yerr=np.sqrt(var),ecolor="black",elinewidth=0.5)
+    data = np.asarray(data)
+    temps,data = data[:,0],data[:,1:]
 
 
-# x,y = np.arange(10),np.arange(10)
-# plt.errorbar(x=x,y=x,xerr=np.zeros(10),yerr=np.ones(10),fmt="k-",linewidth=0.5,elinewidth=0.5)
-# plt.plot(x,y,"r.")
-plt.show(block=True)
+# In[5]:
 
 
+plt.figure(figsize=(9,9))
+for temp,y in zip(temps,data):
+    plt.plot([temp]*len(y), y,"x",label="{:.2}".format(temp))
+plt.legend()
+plt.title("Nearest Neighbour Corrleation",fontsize=24)
+plt.ylabel("Monte-Carlo estimated correlation",fontsize=18)
+plt.xlabel("Temperature in units of KbT (Boltzman's constant)", fontsize=18)
+plt.show()
 
 
+# The data collected was sampled 10 times per ising simulation. If we like we can take the mean of the samples in each simulation by averaging over those 10 samples.
+
+# In[6]:
+
+
+# Average the data across each simulation
+assert data.shape[1] % 10 == 0
+n_sims_per_temp = data.shape[1] // 10
+data_avg = data.reshape((-1,n_sims_per_temp,10)).mean(axis=-1)
+
+
+# The error in the mean is $\sigma / \sqrt{n-1}$, where $n$ is our `n_sims_per_temp` variable defined above. 
+
+# In[7]:
+
+
+mean = data_avg.mean(axis=-1)
+err  = data_avg.std(axis=-1)/np.sqrt(n_sims_per_temp-1)
+
+
+# In[8]:
+
+
+plt.figure(figsize=(9,9))
+for temp,y in zip(temps,data_avg):
+    plt.plot([temp]*len(y), y,"x",label="{:.2}".format(temp))
+plt.errorbar(temps,mean,yerr=err,xerr=np.zeros(err.shape),fmt="k.",
+            barsabove=False,elinewidth=2)
+plt.legend()
+plt.title("Nearest Neighbour Corrleation",fontsize=24)
+plt.ylabel("Monte-Carlo estimated correlation, avg over run",fontsize=18)
+plt.xlabel("Temperature in units of KbT (Boltzman's constant)", fontsize=18)
+plt.show()
+
+
+# The error bars are quite small. 

@@ -75,7 +75,6 @@ impl Lattice2d {
         h: f64,
         beta: f64,
     ) -> Self {
-        // TODO: implement initialization for different spin types
         let nodes: Array2<i32> = Lattice2d::init_spins(&init_type, &dims);
 
         let (width, height) = nodes.dim();
