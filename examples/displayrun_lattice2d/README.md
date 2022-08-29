@@ -1,5 +1,7 @@
 # Example dry-run of Ising Lattice 2d
-Visually displays in the terminal what's going on under the hood of the simulation. 
+Visually displays in the terminal what's going on under the hood of the simulation. To run it just `cd` into this directory and run 
+
+`cargo run`
 
 # Demo
 
