@@ -1,10 +1,13 @@
-//! The 2D Spin Lattice Type
+//! The 2D Spin Lattice Type. This is the first (and, so far, the only)
+//! type of network (/graph) on which Monte-Carlo sampling can be done. 
+//! You can use it with the built-in measurement and monte-carlo types
+//! (refer to examples), or you can just use the lattice. 
 
 use ndarray::prelude::*;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
-/// update rule for Lattice 2d
+/// Update rule options for Lattice 2d (Metropolis only for now)
 #[derive(Clone, Copy)]
 pub enum UpdateRule {
     Metropolis,
@@ -14,15 +17,15 @@ pub enum UpdateRule {
 // TODO: implement a hamiltonian type, for different models?
 // consider renaming SpinType to Model Type, then we can call them
 // things like SpinHalfFerromagnet or Sznajd or XY
-/// types of spin system
+// - SpinThreeHalf
+// - XY
+/// Types of spin system (SpinHalf only for now)
 #[derive(Clone, Copy)]
 pub enum SpinType {
     SpinHalf,
-    SpinThreeHalf,
-    XY,
 }
 
-/// initial condition
+/// Initial condition (Random or AllUp)
 #[derive(Clone, Copy)]
 pub enum InitType {
     Random,
@@ -173,7 +176,7 @@ impl Lattice2d {
             }
             UpdateRule::Glauber => {
                 // not yet implemented
-                println!("Warning Glauber Rule not yet implemented");
+                panic!("Warning Glauber Rule not yet implemented");
             }
         }
     }

@@ -1,11 +1,15 @@
-//! The Measurement type calculates quantities on systems that can be
-//! measured instantaneously, i.e. that do not require averaging over 
+//! The Measurement type calculates quantities on networks that can be 
+//! measured instantaneously, (such as the magnetization at a given 
+//! point in time), i.e. quantities that do not require averaging over 
 //! multiple samples.
 
 use ndarray::prelude::*;
 use crate::lattice2d::*;
 
-/// The measurement trait measures quantities across different graphs
+/// The measurement trait measures quantities across different graphs.
+/// Each method returns a 2d vector of dim (x,y) where x is the number
+/// of simulated graphs run, and y is the number of samples taken with
+/// each run. 
 pub trait Measurement {
     fn get_spin_sum(&self) -> i32;      // get the sum of the spin values
     fn get_spin_mean(&self) -> f64;     // get the mean value of spins 

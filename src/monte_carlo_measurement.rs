@@ -1,5 +1,9 @@
+//! The MonteCarlo type samples quantities on networks that are 
+//! estimated over multiple runs, (such as the expected value of the 
+//! magnetization squared) 
+
 use crate::lattice2d::*;
-use crate::measurement::Measurement; // *;
+use crate::measurement::Measurement; 
 use std::thread;
 
 /// Parameters for monte carlo sampling
