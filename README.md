@@ -1,3 +1,6 @@
+
+*This repository has now been packaged and published as a crate which you can find [here](https://crates.io/crates/ising_lib), the lateste updates are now on [this repository](https://github.com/micouy/ising_lib). The docs can be found on the official [docs.rs website](https://docs.rs/ising_lib/latest/ising_lib/).*
+
 # Rust Ising Library
 
 Ising Lib is a tool to aid researchers and curious people perform Ising model simulations on lattices and other graphs. It aims to provide a broad range of fast Ising simulation tools.
